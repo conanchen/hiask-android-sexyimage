@@ -1,0 +1,3 @@
+include ':app', ':feature-base', ':lib-usecase', ':lib-dbroom',
+        ':lib-apigrpc', ':lib-apirest', ':lib-repository',
+        ':feature-login', ':feature-image', ':feature-visitor'

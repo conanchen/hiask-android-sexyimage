@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SexyImage</string>
+    <string name="title_normal">Normal</string>
+    <string name="title_poster">Poster</string>
+    <string name="title_visitor">Visitor</string>
+    <string name="title_sexy">Sexy</string>
+    <string name="title_porn">Porn</string>
+</resources>

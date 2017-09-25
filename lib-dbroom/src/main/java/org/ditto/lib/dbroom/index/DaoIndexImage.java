@@ -1,0 +1,28 @@
+package org.ditto.lib.dbroom.index;
+
+import android.arch.lifecycle.LiveData;
+import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.Query;
+
+
+import java.util.List;
+
+import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
+
+@Dao
+public interface DaoIndexImage {
+
+    @Insert(onConflict = REPLACE)
+    Long save(IndexImage indexImage);
+
+    @Insert(onConflict = REPLACE)
+    Long[] saveAll(IndexImage... messageIndices);
+
+    @Insert(onConflict = REPLACE)
+    List<Long> saveAll(List<IndexImage> messageIndices);
+
+
+    @Query("SELECT * FROM IndexImage ORDER by lastUpdated DESC LIMIT :size")
+    LiveData<List<IndexImage>> listImageIndicesBy(int size);
+}
