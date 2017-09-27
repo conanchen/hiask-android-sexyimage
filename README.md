@@ -80,12 +80,9 @@ conan8chan@yahoo.com/fabric$100
     
 #访问服务器开发
 - ssh chenchunhai@10.9.42.202     
-- ssh chenchunhai@119.4.167.224
 - https://apacheignite.readme.io/docs/docker-deployment
     - Pull latest version.
       1. $ sudo docker pull apacheignite/ignite:2.1.0
       2. $ sudo docker run -it --net=host -e "CONFIG_URI=https://raw.githubusercontent.com/apache/ignite/master/examples/config/example-cache.xml" apacheignite/ignite
       
       
-#附近现场、红包、服务社交消费个人端APP  ~      
-#附近现场、红包、服务社交消费商家端APP  ~      
