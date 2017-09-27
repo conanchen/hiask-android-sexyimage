@@ -31,7 +31,10 @@ service ImageMan {
     rpc Delete (DeleteRequest) returns (StatusResponse) {
     }
 
-    rpc Upsert (UpsertRequest) returns (StatusResponse) {
+    rpc Update (UpdateRequest) returns (StatusResponse) {
+    }
+
+    rpc Create (CreateRequest) returns (StatusResponse) {
     }
 }
 
@@ -45,21 +48,17 @@ message DeleteRequest {
     string url = 1;
 }
 
-message UpsertRequest {
+message UpdateRequest {
     string url = 1;
-    oneof inforUrl {
-        bool infoUrl_toUpdate = 2;
-        string infoUrl_value = 3;
-    }
-    oneof title {
-        bool title_toUpdate = 4;
-        string title_value = 5;
-    }
-    oneof desc {
-        bool desc_toUpdate = 6;
-        string desc_value = 7;
-    }
-    ImageType type = 8;
-    bool active = 9;
-    bool toprank = 10;
+    string infoUrl = 2;
+    string title = 3;
+    string desc = 4;
+    ImageType type = 5;
+    bool active = 6;
+    bool toprank = 7;
 }
+
+message CreateRequest {
+    string url = 1;
+}
+

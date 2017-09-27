@@ -21,18 +21,26 @@ public class IndexImage implements Parcelable {
     public String title;
     public String desc;
     public String type;//NORMAL,POSTER,SEXY,PORN
+    public long visitCount;
+    public long created;
     public long lastUpdated;
+    public boolean active;
+    public boolean toprank;
 
     public IndexImage() {
     }
 
-    private IndexImage(@NonNull String url, String infoUrl, String title, String desc, String type, long lastUpdated) {
+    private IndexImage(@NonNull String url, String infoUrl, String title, String desc, String type, long visitCount, long created, long lastUpdated, boolean active, boolean toprank) {
         this.url = url;
         this.infoUrl = infoUrl;
         this.title = title;
         this.desc = desc;
         this.type = type;
+        this.visitCount = visitCount;
+        this.created = created;
         this.lastUpdated = lastUpdated;
+        this.active = active;
+        this.toprank = toprank;
     }
 
     public static Builder builder() {
@@ -45,7 +53,11 @@ public class IndexImage implements Parcelable {
         private String title;
         private String desc;
         private String type;//NORMAL,POSTER,SEXY,PORN
+        private long visitCount;
+        private long created;
         private long lastUpdated;
+        private boolean active;
+        private boolean toprank;
 
         Builder() {
         }
@@ -71,7 +83,7 @@ public class IndexImage implements Parcelable {
                 throw new IllegalStateException("Missing required properties:" + missing);
             }
             IndexImage indexImage = new
-                    IndexImage(url, infoUrl, title, desc, type, lastUpdated);
+                    IndexImage(url, infoUrl, title, desc, type,visitCount, created,lastUpdated,active,toprank);
             return indexImage;
         }
 
@@ -100,8 +112,28 @@ public class IndexImage implements Parcelable {
             return this;
         }
 
+        public Builder setVisitCount(long visitCount) {
+            this.visitCount = visitCount;
+            return this;
+        }
+
+        public Builder setCreated(long created) {
+            this.created = created;
+            return this;
+        }
+
         public Builder setLastUpdated(long lastUpdated) {
             this.lastUpdated = lastUpdated;
+            return this;
+        }
+
+        public Builder setActive(boolean active) {
+            this.active = active;
+            return this;
+        }
+
+        public Builder setToprank(boolean toprank) {
+            this.toprank = toprank;
             return this;
         }
     }

@@ -1,8 +1,5 @@
 package org.ditto.lib.usecases;
 
-import android.arch.lifecycle.LiveData;
-
-import org.ditto.lib.apirest.util.Resource;
 import org.ditto.lib.dbroom.CommandStatus;
 import org.ditto.lib.dbroom.user.User;
 import org.ditto.lib.dbroom.user.UserCommand;
@@ -30,9 +27,6 @@ public class UserUsecase {
         this.repositoryFascade = repositoryFascade;
     }
 
-    public LiveData<Resource<User>> loadByLogin(String login) {
-        return repositoryFascade.userRepository.loadUser(login);
-    }
 
     public List<User> load(int start, int number) {
         return new ArrayList<User>();

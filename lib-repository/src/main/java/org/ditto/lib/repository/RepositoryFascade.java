@@ -1,7 +1,6 @@
 package org.ditto.lib.repository;
 
 import org.ditto.lib.apigrpc.ApigrpcFascade;
-import org.ditto.lib.apirest.ApirestFascade;
 
 import javax.inject.Inject;
 
@@ -14,27 +13,21 @@ public class RepositoryFascade {
     @Inject
     String strAmir;
 
-    public BuyanswerRepository buyanswerRepository;
     public IndexImageRepository indexImageRepository;
     public IndexVisitorRepository indexVisitorRepository;
     public  UserRepository userRepository;
     public  ApigrpcFascade apigrpcFascade;
-    public  ApirestFascade apirestFascade;
 
 
     @Inject
     public RepositoryFascade(UserRepository userRepository,
-                             BuyanswerRepository buyanswerRepository,
                              IndexImageRepository indexImageRepository,
                              IndexVisitorRepository indexVisitorRepository,
-                             ApigrpcFascade apigrpcFascade,
-                             ApirestFascade apirestFascade ) {
+                             ApigrpcFascade apigrpcFascade ) {
         this.userRepository = userRepository;
-        this.buyanswerRepository = buyanswerRepository;
         this.indexImageRepository = indexImageRepository;
         this.indexVisitorRepository = indexVisitorRepository;
         this.apigrpcFascade = apigrpcFascade;
-        this.apirestFascade = apirestFascade;
         System.out.println(strAmir);
 
     }

@@ -1,6 +1,8 @@
 package org.ditto.lib.apigrpc;
 
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 
 import org.ditto.lib.apigrpc.model.Image;
@@ -12,7 +14,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -22,9 +23,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.health.v1.HealthCheckRequest;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.health.v1.HealthGrpc;
-import io.grpc.okhttp.OkHttpChannelBuilder;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
+import io.grpc.stub.StreamObserver;
 
 /**
  * Created by admin on 2017/9/24.
@@ -33,21 +34,29 @@ import io.grpc.stub.ClientResponseObserver;
 @Singleton
 public class ImageManService {
 
+    private final static String TAG = ImageManService.class.getSimpleName();
 
     public interface ListImageCallback {
         void onImageReceived(Image image);
+
     }
 
     private static final Gson gson = new Gson();
 
     private static final Logger logger = Logger.getLogger(ImageManService.class.getName());
     private final ManagedChannel channel;
-    private final ImageManGrpc.ImageManStub asyncStub;
+    private final ImageManGrpc.ImageManStub imageManStub;
+    private final HealthGrpc.HealthStub healthFutureStub;
+    final HealthCheckRequest healthCheckRequest = HealthCheckRequest
+            .newBuilder()
+            .setService(ImageManGrpc.getServiceDescriptor().getName())
+            .build();
 
     @Inject
     public ImageManService(final ManagedChannel channel) {
         this.channel = channel;
-        asyncStub = ImageManGrpc.newStub(channel);
+        imageManStub = ImageManGrpc.newStub(channel);
+        healthFutureStub = HealthGrpc.newStub(channel);
     }
 
 
@@ -58,26 +67,28 @@ public class ImageManService {
     ClientCallStreamObserver<Imageman.ListRequest> listRequestStream;
 
     public void listImages(Common.ImageType imageType, long lastUpdated, ListImageCallback callback) {
-        asyncStub.withWaitForReady().list(Imageman.ListRequest.newBuilder().setType(imageType).setLastUpdated(lastUpdated).build(), new ListImagesStreamObserver(callback));
+        healthFutureStub.check(healthCheckRequest,
+                new StreamObserver<HealthCheckResponse>() {
+                    @Override
+                    public void onNext(HealthCheckResponse value) {
+                        if (value.getStatus() == HealthCheckResponse.ServingStatus.SERVING) {
+                            imageManStub.withWaitForReady().list(Imageman.ListRequest.newBuilder().setType(imageType).setLastUpdated(lastUpdated).build(), new ListImagesStreamObserver(callback));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        Log.i(TAG, String.format("onError grpc service check health\n%s", t.getMessage()));
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        Log.i(TAG, String.format("onCompleted grpc service check health\n%s", ""));
+                    }
+                });
+
     }
 
-    public boolean isHealth() {
-        final HealthCheckRequest healthCheckRequest = HealthCheckRequest
-                .newBuilder()
-                .setService(ImageManGrpc.getServiceDescriptor().getName())
-                .build();
-        final HealthGrpc.HealthFutureStub healthFutureStub = HealthGrpc.newFutureStub(channel);
-        final HealthCheckResponse.ServingStatus servingStatus;
-        try {
-            servingStatus = healthFutureStub.check(healthCheckRequest).get().getStatus();
-            return HealthCheckResponse.ServingStatus.SERVING.equals(servingStatus);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
 
 
     private class ListImagesStreamObserver implements ClientResponseObserver<
@@ -111,13 +122,13 @@ public class ImageManService {
                     .build();
             listImageCallback.onImageReceived(image);
             listRequestStream.request(1);
-            logger.info(String.format("%s image=[%s]", "onNext listRequestStream.request(1)",gson.toJson(image)));
+            logger.info(String.format("%s image=[%s]", "onNext listRequestStream.request(1)", gson.toJson(image)));
         }
 
 
         @Override
         public void onError(Throwable t) {
-            logger.info(String.format("%s%s", "onError isSubscribingImages.set(false)",t.getMessage()));
+            logger.info(String.format("%s%s", "onError isSubscribingImages.set(false)", t.getMessage()));
             t.printStackTrace();
         }
 

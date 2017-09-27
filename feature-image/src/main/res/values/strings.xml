@@ -1,3 +1,6 @@
 <resources>
-    <string name="app_name">feature-indexImage</string>
+    <string name="app_name">粉红猪小妹</string>
+    <string name="prompt_url">请输入图片URL</string>
+    <string name="prompt_infourl">请输入推广图片的网页URL</string>
+    <string name="title_prompt">请输入图片标题</string>
 </resources>

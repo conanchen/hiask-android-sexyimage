@@ -66,8 +66,6 @@ dependencies {
     debugCompile project(path: ':lib-apigrpc', configuration: 'debug')
     releaseCompile project(path: ':lib-apigrpc', configuration: 'release')
 
-    debugCompile project(path: ':lib-apirest', configuration: 'debug')
-    releaseCompile project(path: ':lib-apirest', configuration: 'release')
 
     debugCompile project(path: ':lib-dbroom', configuration: 'debug')
     releaseCompile project(path: ':lib-dbroom', configuration: 'release')

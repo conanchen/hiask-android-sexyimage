@@ -1,6 +1,7 @@
 package org.ditto.sexyimage.di;
 
-import org.ditto.feature.index.di.ImageFragmentBuildersModule;
+import org.ditto.feature.image.profile.UpsertActivity;
+import org.ditto.feature.image.di.ImageFragmentBuildersModule;
 import org.ditto.feature.visitor.di.VisitorFragmentBuildersModule;
 import org.ditto.sexyimage.MainActivity;
 import org.ditto.lib.usecases.AppServiceCommandSenderImpl;
@@ -17,6 +18,9 @@ public abstract class MainActivityModule {
             VisitorFragmentBuildersModule.class})
 
     abstract MainActivity contributeMainActivity();
+
+    @ContributesAndroidInjector
+    abstract UpsertActivity contributeUpsertActivity();
 
     @ContributesAndroidInjector
     abstract AppServiceKeepliveTraceImpl contributeAppServiceKeepliveTraceImpl();

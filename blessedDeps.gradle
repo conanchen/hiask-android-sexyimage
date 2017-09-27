@@ -35,7 +35,7 @@ rootProject.ext.GLIDE_VERSION = "4.0.0"
 rootProject.ext.MOXY_VERSION = "1.2.1"
 rootProject.ext.SWIPEDELMENULAYOUT_VERSION = "V1.2.3"
 
-rootProject.ext.AIRBNB_EPOXY_LIBS_VERSION = "2.2.0"
+rootProject.ext.AIRBNB_EPOXY_LIBS_VERSION = "2.5.0"
 
 rootProject.ext.MARDOWN_VIEW_VERSION = "1.5.0"
 rootProject.ext.LOTTIE_VERSION = "2.0.0-beta3"

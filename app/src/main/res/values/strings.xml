@@ -1,8 +1,11 @@
 <resources>
-    <string name="app_name">SexyImage</string>
+    <string name="app_name">粉红猪小妹</string>
     <string name="title_normal">Normal</string>
     <string name="title_poster">Poster</string>
     <string name="title_visitor">Visitor</string>
     <string name="title_sexy">Sexy</string>
     <string name="title_porn">Porn</string>
+    <string name="title_activity_upsert">UpsertActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 </resources>

@@ -19,7 +19,6 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
 
 public class AppServiceCommandSenderImpl extends LifecycleService {
 
@@ -35,14 +34,7 @@ public class AppServiceCommandSenderImpl extends LifecycleService {
         AndroidInjection.inject(this);
         super.onCreate();
 
-        usecaseFascade.repositoryFascade.buyanswerRepository
-                .listCommandsBy(ImageCommand.Create.class.getSimpleName(), true, 3)
-                .observe(this, new Observer<List<ImageCommand>>() {
-                    @Override
-                    public void onChanged(@Nullable List<ImageCommand> imageCommands) {
-                        Timber.d("will send out %d commands to cloud server", imageCommands.size());
-                    }
-                });
+
     }
 
     @Override

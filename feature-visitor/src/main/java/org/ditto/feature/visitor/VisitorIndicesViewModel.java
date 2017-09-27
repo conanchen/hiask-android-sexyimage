@@ -6,7 +6,7 @@ import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.VisibleForTesting;
 
-import org.ditto.lib.apirest.util.AbsentLiveData;
+import org.ditto.lib.AbsentLiveData;
 import org.ditto.lib.dbroom.index.IndexVisitor;
 import org.ditto.lib.usecases.UsecaseFascade;
 

@@ -2,7 +2,7 @@ package org.ditto.sexyimage.di;
 
 import android.app.Application;
 
-import org.ditto.feature.index.di.ImageModule;
+import org.ditto.feature.image.di.ImageModule;
 import org.ditto.feature.visitor.di.VisitorModule;
 import org.ditto.sexyimage.SexyApplication;
 import org.ditto.lib.usecases.di.UsecaseModule;

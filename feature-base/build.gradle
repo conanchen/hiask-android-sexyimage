@@ -74,10 +74,9 @@ dependencies {
     annotationProcessor "android.arch.lifecycle:compiler:$arch_version"
 
 
-    compile "com.android.support.constraint:constraint-layout:$constraint_layout_version"
     compile "com.android.support:appcompat-v7:$ANDROID_SUPPORT_LIBS_VERSION"
     compile "com.android.support:design:$ANDROID_SUPPORT_LIBS_VERSION"
-
+    compile "com.android.support.constraint:constraint-layout:$constraint_layout_version"
 
     compile "com.airbnb.android:epoxy:$AIRBNB_EPOXY_LIBS_VERSION"
     compile "com.airbnb.android:lottie:$LOTTIE_VERSION"

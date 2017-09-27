@@ -3,7 +3,7 @@ package org.ditto.lib.dbroom.di;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 
-import org.ditto.lib.dbroom.image.DaoBuyanswer;
+import org.ditto.lib.dbroom.image.DaoImage;
 import org.ditto.lib.dbroom.index.DaoIndexImage;
 import org.ditto.lib.dbroom.MyRoomDatabase;
 import org.ditto.lib.dbroom.RoomFascade;
@@ -42,7 +42,7 @@ public class RoomModule {
 
     @Singleton
     @Provides
-    DaoBuyanswer provideBuyanswerDao(MyRoomDatabase db) {
+    DaoImage provideBuyanswerDao(MyRoomDatabase db) {
         return db.daoBuyanswer();
     }
 
@@ -63,10 +63,10 @@ public class RoomModule {
     @Singleton
     @Provides
     public RoomFascade provideRoomFascade(DaoUser daoUser,
-                                          DaoBuyanswer daoBuyanswer,
+                                          DaoImage daoImage,
                                           DaoIndexImage daoIndexImage,
                                           DaoIndexVisitor daoIndexVisitor
     ) {
-        return new RoomFascade(daoUser, daoBuyanswer, daoIndexImage, daoIndexVisitor);
+        return new RoomFascade(daoUser, daoImage, daoIndexImage, daoIndexVisitor);
     }
 }

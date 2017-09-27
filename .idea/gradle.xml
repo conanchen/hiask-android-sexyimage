@@ -15,7 +15,6 @@
             <option value="$PROJECT_DIR$/feature-login" />
             <option value="$PROJECT_DIR$/feature-visitor" />
             <option value="$PROJECT_DIR$/lib-apigrpc" />
-            <option value="$PROJECT_DIR$/lib-apirest" />
             <option value="$PROJECT_DIR$/lib-dbroom" />
             <option value="$PROJECT_DIR$/lib-repository" />
             <option value="$PROJECT_DIR$/lib-usecase" />

@@ -2,11 +2,8 @@ package org.ditto.lib.repository.di;
 
 import org.ditto.lib.apigrpc.ApigrpcFascade;
 import org.ditto.lib.apigrpc.di.ApigrpcModule;
-import org.ditto.lib.apirest.ApirestFascade;
-import org.ditto.lib.apirest.di.ApirestModule;
 import org.ditto.lib.dbroom.RoomFascade;
 import org.ditto.lib.dbroom.di.RoomModule;
-import org.ditto.lib.repository.BuyanswerRepository;
 import org.ditto.lib.repository.IndexImageRepository;
 import org.ditto.lib.repository.IndexVisitorRepository;
 import org.ditto.lib.repository.RepositoryFascade;
@@ -23,8 +20,7 @@ import dagger.Provides;
 @Singleton
 @Module(includes = {
         RoomModule.class,
-        ApigrpcModule.class,
-        ApirestModule.class
+        ApigrpcModule.class
 })
 public class RepositoryModule {
 
@@ -32,55 +28,40 @@ public class RepositoryModule {
     @Provides
     public RepositoryFascade provideRepositoryFascade(
             UserRepository userRepository,
-            BuyanswerRepository buyanswerRepository,
             IndexImageRepository indexImageRepository,
             IndexVisitorRepository indexVisitorRepository,
-            ApigrpcFascade apigrpcFascade,
-            ApirestFascade apirestFascade
+            ApigrpcFascade apigrpcFascade
     ) {
-        return new RepositoryFascade(userRepository,
-                buyanswerRepository,
+        return new RepositoryFascade(
+                userRepository,
                 indexImageRepository,
                 indexVisitorRepository,
-                apigrpcFascade,
-                apirestFascade);
+                apigrpcFascade);
     }
 
 
     @Singleton
     @Provides
     public UserRepository provideUserRepository(
-            ApirestFascade apirestFascade,
             RoomFascade roomFascade) {
-        return new UserRepository(apirestFascade, roomFascade);
-    }
-
-
-    @Singleton
-    @Provides
-    public BuyanswerRepository provideBuyanswerRepository(
-            ApirestFascade apirestFascade,
-            RoomFascade roomFascade) {
-        return new BuyanswerRepository(apirestFascade, roomFascade);
+        return new UserRepository( roomFascade);
     }
 
 
     @Singleton
     @Provides
     public IndexImageRepository provideMessageIndexRepository(
-            ApirestFascade apirestFascade,
             ApigrpcFascade apigrpcFascade,
             RoomFascade roomFascade) {
-        return new IndexImageRepository(apirestFascade, apigrpcFascade,roomFascade);
+        return new IndexImageRepository(apigrpcFascade, roomFascade);
     }
 
 
     @Singleton
     @Provides
     public IndexVisitorRepository provideIndexVisitorRepository(
-            ApirestFascade apirestFascade,
             RoomFascade roomFascade) {
-        return new IndexVisitorRepository(apirestFascade, roomFascade);
+        return new IndexVisitorRepository(roomFascade);
     }
 
 

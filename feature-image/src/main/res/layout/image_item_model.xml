@@ -6,8 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
-    android:layout_marginLeft="1dp"
     android:layout_marginBottom="1dp"
+    android:layout_marginLeft="1dp"
     android:background="@color/blue">
 
     <android.support.v7.widget.AppCompatImageView
@@ -30,24 +30,9 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:checked="false"
-        android:text="99"
+        android:enabled="false"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <!--
-        <TextView
-            android:id="@+id/name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:background="@color/blue"
-            android:text="photo path"
-            app:layout_constraintBottom_toBottomOf="@+id/image"
-            app:layout_constraintLeft_toLeftOf="@+id/image"
-            app:layout_constraintRight_toRightOf="@+id/image" />
-    -->
 </android.support.constraint.ConstraintLayout>

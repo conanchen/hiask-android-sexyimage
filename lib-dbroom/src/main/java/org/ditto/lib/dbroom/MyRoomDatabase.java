@@ -7,7 +7,7 @@ import org.ditto.lib.dbroom.image.Buyanswer;
 import org.ditto.lib.dbroom.image.ImageCommand;
 import org.ditto.lib.dbroom.image.BuyanswerContent;
 import org.ditto.lib.dbroom.image.ConverterBuyanswer;
-import org.ditto.lib.dbroom.image.DaoBuyanswer;
+import org.ditto.lib.dbroom.image.DaoImage;
 import org.ditto.lib.dbroom.image.BuyanswerMessage;
 import org.ditto.lib.dbroom.index.DaoIndexImage;
 import org.ditto.lib.dbroom.index.DaoIndexVisitor;
@@ -36,7 +36,7 @@ import org.ditto.lib.dbroom.user.UserCommand;
 public abstract class MyRoomDatabase extends android.arch.persistence.room.RoomDatabase {
     public abstract DaoUser daoUser();
 
-    public abstract DaoBuyanswer daoBuyanswer();
+    public abstract DaoImage daoBuyanswer();
 
     public abstract DaoIndexImage daoMessageIndex();
 

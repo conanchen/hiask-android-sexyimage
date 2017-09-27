@@ -10,11 +10,11 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"></uses-permission>
-    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"></uses-permission>
-    <uses-permission android:name="android.permission.READ_LOGS"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
@@ -22,13 +22,14 @@
     <uses-permission android:name="android.permission.GET_TASKS" />
 
     <application
-        android:name="org.ditto.sexyimage.SexyApplication"
+        android:name=".SexyApplication"
         android:allowBackup="true"
         android:icon="@drawable/ask28"
         android:label="@string/app_name"
         android:roundIcon="@drawable/ask108"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
+
         <!-- 设置高德地图key -->
         //AMAP key debug: 4d83adc4a7dea5315096f8629a8c9a02
         //AMAP key release: 0cb63f20a55885d177339e9d50f0f87b
@@ -39,13 +40,13 @@
             android:name="WEIBO_APPKEY"
             android:value="2810973698" />
         <!-- 定位需要的服务 -->
-        <service android:name="com.amap.api.location.APSService"></service>
-        <!--保活服务和定期获取位置-->
+        <service android:name="com.amap.api.location.APSService" />
+        <!-- 保活服务和定期获取位置 -->
         <service android:name="org.ditto.lib.usecases.AppServiceKeepliveTraceImpl" />
         <service android:name="org.ditto.lib.usecases.AppServiceCommandSenderImpl" />
 
         <activity
-            android:name="org.ditto.sexyimage.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustUnspecified|stateHidden">
             <intent-filter>
@@ -53,13 +54,21 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="77db00f3825405f27ba8b8dabfd9c6c4c4c0a903" />
 
+        <activity
+            android:name="org.ditto.feature.image.profile.UpsertActivity"
+            android:label="@string/title_activity_upsert"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.ditto.sexyimage.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

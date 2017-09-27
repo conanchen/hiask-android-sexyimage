@@ -5,6 +5,7 @@ package org.ditto.lib.usecases;
 
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.xdandroid.hellodaemon.AbsWorkService;
 
@@ -14,9 +15,10 @@ import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import timber.log.Timber;
 
 public class AppServiceKeepliveTraceImpl extends AbsWorkService {
+
+    private   final static String TAG="AbsWorkService";
 
     //是否 任务完成, 不再需要服务运行?
     public static boolean sShouldStopService;
@@ -48,22 +50,22 @@ public class AppServiceKeepliveTraceImpl extends AbsWorkService {
     @Override
     public void startWork(Intent intent, int flags, int startId) {
         int seconds = 30;
-        Timber.d("检查磁盘中是否有上次销毁时保存的数据");
+        Log.d(TAG,"检查磁盘中是否有上次销毁时保存的数据");
         sDisposable = Flowable
                 .interval(seconds, TimeUnit.SECONDS)
                 //取消任务时取消定时唤醒
                 .doOnTerminate(new Action() {
                     @Override
                     public void run() throws Exception {
-                        Timber.d("定时任务:保存数据到磁盘。");
+                        Log.d(TAG,"定时任务:保存数据到磁盘。");
                         cancelJobAlarmSub();
                     }
                 }).subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long count) throws Exception {
-                        Timber.d("定时任务:每 %d 秒采集一次数据... count = %d", seconds, count);
+                        Log.d(TAG,String.format("定时任务:每 %d 秒采集一次数据... count = %d", seconds, count));
                         if (count > 0 && count % 18 == 0)
-                            Timber.d("定时任务:保存数据到磁盘。 saveCount = " + (count / 18 - 1));
+                            Log.d(TAG,"定时任务:保存数据到磁盘。 saveCount = " + (count / 18 - 1));
                     }
                 });
 
@@ -92,12 +94,12 @@ public class AppServiceKeepliveTraceImpl extends AbsWorkService {
 
     @Override
     public void onServiceKilled(Intent rootIntent) {
-        Timber.d("onServiceKilled...保存数据到磁盘。");
+        Log.d(TAG,"onServiceKilled...保存数据到磁盘。");
     }
 
     @Override
     protected int onStart(Intent intent, int flags, int startId) {
-        Timber.d("onStart flags=%d startId=%d", flags, startId);
+        Log.d(TAG,String.format("onStart flags=%d startId=%d", flags, startId));
         return super.onStart(intent, flags, startId);
     }
 

@@ -12,17 +12,21 @@ public class Image {
     public String desc;
     public Common.ImageType type;//NORMAL,POSTER,SEXY,PORN
     public long lastUpdated;
+    public boolean active;
+    public boolean toprank;
 
     public Image() {
     }
 
-    public Image(String url, String infoUrl, String title, String desc, Common.ImageType type, long lastUpdated) {
+    private Image(String url, String infoUrl, String title, String desc, Common.ImageType type, long lastUpdated, boolean active, boolean toprank) {
         this.url = url;
         this.infoUrl = infoUrl;
         this.title = title;
         this.desc = desc;
         this.type = type;
         this.lastUpdated = lastUpdated;
+        this.active = active;
+        this.toprank = toprank;
     }
 
     public static Builder builder() {
@@ -36,6 +40,8 @@ public class Image {
         private String desc;
         private Common.ImageType type;
         private long lastUpdated;
+        private boolean active;
+        private boolean toprank;
 
         Builder() {
         }
@@ -56,7 +62,7 @@ public class Image {
             if (!missing.isEmpty()) {
                 throw new IllegalStateException("Missing required properties:" + missing);
             }
-            Image image = new Image(url, infoUrl, title, desc, type,lastUpdated);
+            Image image = new Image(url, infoUrl, title, desc, type, lastUpdated,active,toprank);
             return image;
         }
 
@@ -87,6 +93,16 @@ public class Image {
 
         public Builder setLastUpdated(long lastUpdated) {
             this.lastUpdated = lastUpdated;
+            return this;
+        }
+
+        public Builder setActive(boolean active) {
+            this.active = active;
+            return this;
+        }
+
+        public Builder setToprank(boolean toprank) {
+            this.toprank = toprank;
             return this;
         }
     }

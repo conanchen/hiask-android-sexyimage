@@ -2,8 +2,6 @@ package org.ditto.lib.repository;
 
 import android.arch.lifecycle.LiveData;
 
-import org.ditto.lib.apirest.ApirestFascade;
-import org.ditto.lib.apirest.util.AppExecutors;
 import org.ditto.lib.dbroom.RoomFascade;
 import org.ditto.lib.dbroom.image.Buyanswer;
 import org.ditto.lib.dbroom.index.IndexVisitor;
@@ -19,15 +17,11 @@ import javax.inject.Singleton;
 @Singleton
 public class IndexVisitorRepository {
 
-    private ApirestFascade githubService;
-    private final AppExecutors appExecutors;
     private RoomFascade roomFascade;
 
     @Inject
-    public IndexVisitorRepository(ApirestFascade githubService, RoomFascade roomFascade) {
+    public IndexVisitorRepository(  RoomFascade roomFascade) {
         this.roomFascade = roomFascade;
-        this.githubService = githubService;
-        this.appExecutors = new AppExecutors();
     }
 
     public LiveData<List<IndexVisitor>> listVisitorsBy(int size) {

@@ -17,14 +17,14 @@ import android.view.View;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.crashlytics.android.Crashlytics;
-import com.google.common.base.Strings;
 import com.roughike.bottombar.BottomBar;
 import com.xdandroid.hellodaemon.IntentWrapper;
 
 import org.ditto.feature.base.BaseFragmentActivity;
 import org.ditto.feature.base.FragmentsPagerAdapter;
-import org.ditto.feature.index.image.FragmentImageIndices;
+import org.ditto.feature.image.index.FragmentImageIndices;
 import org.ditto.feature.visitor.FragmentVisitorIndices;
+import org.ditto.lib.Constants;
 import org.ditto.sexyimage.grpc.Common;
 
 import java.util.ArrayList;
@@ -92,7 +92,7 @@ public class MainActivity extends BaseFragmentActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         //toolbar.setLogo(android.R.drawable.ic_dialog_email);
-        toolbar.setTitle("Sexy Image");
+        toolbar.setTitle("粉红猪小妹");
         //以上3个属性必须在setSupportActionBar(toolbar)之前调用
         setSupportActionBar(toolbar);
         //设置导航Icon，必须在setSupportActionBar(toolbar)之后设置
@@ -207,10 +207,27 @@ public class MainActivity extends BaseFragmentActivity {
         });
 
         bottomBar.setOnTabReselectListener((@IdRes int tabId) -> {
-            Fragment baseFragment = fmList.get(viewPager.getCurrentItem());
-            String route = baseFragment.getArguments().getString("route");
-            if (!Strings.isNullOrEmpty(route)) {
-                ARouter.getInstance().build(route).navigation();
+            switch (tabId){
+                case R.id.navigation_tab0:
+                    ARouter.getInstance().build("/feature_image/UpsertActivity")
+                            .withString(Constants.IMAGETYPE, Common.ImageType.NORMAL.name())
+                            .navigation();
+                    break;
+                case R.id.navigation_tab1:
+                    ARouter.getInstance().build("/feature_image/UpsertActivity")
+                            .withString(Constants.IMAGETYPE, Common.ImageType.POSTER.name())
+                            .navigation();
+                    break;
+                case R.id.navigation_tab3:
+                    ARouter.getInstance().build("/feature_image/UpsertActivity")
+                            .withString(Constants.IMAGETYPE, Common.ImageType.SEXY.name())
+                            .navigation();
+                    break;
+                case R.id.navigation_tab4:
+                    ARouter.getInstance().build("/feature_image/UpsertActivity")
+                            .withString(Constants.IMAGETYPE, Common.ImageType.PORN.name())
+                            .navigation();
+                    break;
             }
         });
 
