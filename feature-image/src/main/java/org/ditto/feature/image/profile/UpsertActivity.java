@@ -19,7 +19,6 @@ import android.widget.Toast;
 import com.alibaba.android.arouter.facade.annotation.Autowired;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.alibaba.android.arouter.launcher.ARouter;
-import com.google.common.base.Strings;
 
 import org.ditto.feature.base.BaseActivity;
 import org.ditto.feature.base.SampleItemAnimator;
@@ -44,7 +43,7 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
 
     @Autowired(name = Constants.IMAGEURL)
     String mImageUrl;
-    private String mOldTitle = "";
+    private String mImageTitle = "";
 
     private enum CollapsingToolbarLayoutState {
         EXPANDED,
@@ -62,7 +61,6 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
     private final ImageProfileEditController controller = new ImageProfileEditController(this, recycledViewPool);
     GridLayoutManager gridLayoutManager;
     private static final int SPAN_COUNT = 1;
-
 
     @BindView(R2.id.itemlist)
     RecyclerView recyclerView;
@@ -104,11 +102,8 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
                 if (mCollapsingToolbarLayoutState != CollapsingToolbarLayoutState.EXPANDED) {
                     mCollapsingToolbarLayoutState = CollapsingToolbarLayoutState.EXPANDED;//修改状态标记为展开
                     collapsingToolbarLayout.setTitle("EXPANDED");//设置title为EXPANDED
-                    String title = Strings.isNullOrEmpty(mViewModel.getNewTitle())
-                            ? mOldTitle
-                            : mViewModel.getNewTitle();
 
-                    collapsingToolbarLayout.setTitle(title);
+                    collapsingToolbarLayout.setTitle(mImageTitle);
                 }
             } else if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange()) {
                 if (mCollapsingToolbarLayoutState != CollapsingToolbarLayoutState.COLLAPSED) {
@@ -158,7 +153,7 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
         ARouter.getInstance().inject(this);
         mViewModel.getLiveImageIndexForUpsert().observe(this, indexImage -> {
             controller.setData(indexImage, mViewModel.isUpdate());
-            mOldTitle = indexImage.title;
+            mImageTitle = indexImage.title;
             if (mViewModel.isUpdate()) {
                 fabdelButon.setVisibility(View.VISIBLE);
             }
@@ -209,7 +204,7 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
 
     @Override
     public void onTitleChanged(String title) {
-
+        mImageTitle = title;
         mViewModel.setNewTitle(title);
     }
 

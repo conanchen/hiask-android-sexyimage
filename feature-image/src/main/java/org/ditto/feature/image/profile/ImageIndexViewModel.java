@@ -67,10 +67,6 @@ public class ImageIndexViewModel extends ViewModel {
     private boolean update;
 
 
-    public String getNewTitle() {
-        return liveImageIndexForUpsert == null ? "" : liveImageIndexForUpsert.getValue().title;
-    }
-
     public ImageIndexViewModel setNewUrl(String newUrl) {
         liveImageIndexForUpsert.getValue().url = newUrl;
         return this;
