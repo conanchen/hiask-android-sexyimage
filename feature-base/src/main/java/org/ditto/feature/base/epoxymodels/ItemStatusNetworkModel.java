@@ -1,16 +1,16 @@
-package org.ditto.feature.image.profile.epoxymodels;
+package org.ditto.feature.base.epoxymodels;
 
+import android.support.v7.widget.AppCompatImageButton;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
 
 import com.airbnb.epoxy.EpoxyAttribute;
 import com.airbnb.epoxy.EpoxyHolder;
 import com.airbnb.epoxy.EpoxyModelClass;
 import com.airbnb.epoxy.EpoxyModelWithHolder;
 
-import org.ditto.feature.image.R;
-import org.ditto.feature.image.R2;
-import org.ditto.feature.image.profile.ImageProfileEditController;
+import org.ditto.feature.base.R;
+import org.ditto.feature.base.R2;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,36 +22,36 @@ import static com.airbnb.epoxy.EpoxyAttribute.Option.DoNotHash;
  * we made, but it could also be another single view, like an EditText or Button.
  */
 @EpoxyModelClass
-public abstract class ImageUrlEditModel extends EpoxyModelWithHolder<ImageUrlEditModel.Holder> {
+public abstract class ItemStatusNetworkModel extends EpoxyModelWithHolder<ItemStatusNetworkModel.Holder> {
     @EpoxyAttribute
-    String url;
+    String url;  //广告url
 
     @EpoxyAttribute
-    Boolean isUpdate;
+    String ads;  //广告文字内容
 
     @EpoxyAttribute(DoNotHash)
-    ImageProfileEditController.AdapterCallbacks callbacks;
+    View.OnClickListener adsClickListener;
 
+    @EpoxyAttribute(DoNotHash)
+    View.OnClickListener settingClickListener;
 
     @Override
     public void bind(Holder holder) {
-        holder.textViewUrl.setText(url);
-        holder.textViewUrl.setOnFocusChangeListener((View view, boolean b) -> {
-                    callbacks.onUrlChanged(holder.textViewUrl.getText().toString());
-                }
-        );
-        holder.textViewUrl.setEnabled(!isUpdate);
+        holder.text_ads_network.setOnClickListener(adsClickListener);
+        holder.antenna_button.setOnClickListener(settingClickListener);
     }
 
     @Override
     public void unbind(Holder holder) {
-
     }
 
     public static class Holder extends EpoxyHolder {
-        @BindView(R2.id.textViewUrl)
-        AutoCompleteTextView textViewUrl;
 
+        @BindView(R2.id.antenna_button)
+        AppCompatImageButton antenna_button;
+
+        @BindView(R2.id.text_ads_network)
+        AppCompatTextView text_ads_network;
 
         View view;
 
@@ -60,16 +60,15 @@ public abstract class ImageUrlEditModel extends EpoxyModelWithHolder<ImageUrlEdi
             this.view = itemView;
             ButterKnife.bind(this, itemView);
         }
-
     }
 
     @Override
     public int getSpanSize(int totalSpanCount, int position, int itemCount) {
-        return 1;
+        return totalSpanCount;
     }
 
     @Override
     protected int getDefaultLayout() {
-        return R.layout.image_urledit_model;
+        return R.layout.item_statusnetwork_model;
     }
 }

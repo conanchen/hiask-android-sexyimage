@@ -4,14 +4,12 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.arch.paging.PagedList;
 import android.support.annotation.VisibleForTesting;
-
-import com.google.common.base.Strings;
 
 import org.ditto.lib.AbsentLiveData;
 import org.ditto.lib.dbroom.index.IndexImage;
 import org.ditto.lib.usecases.UsecaseFascade;
-import org.ditto.sexyimage.grpc.Common;
 
 import java.util.List;
 
@@ -21,7 +19,6 @@ public class ImageIndicesViewModel extends ViewModel {
     @VisibleForTesting
     final MutableLiveData<String> mutableLogin = new MutableLiveData<>();
     private final LiveData<List<IndexImage>> liveImageIndices;
-
 
 
     @Inject

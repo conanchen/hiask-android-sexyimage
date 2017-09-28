@@ -15,7 +15,6 @@ import org.ditto.feature.base.glide.GlideApp;
 import org.ditto.feature.image.R;
 import org.ditto.feature.image.R2;
 
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 

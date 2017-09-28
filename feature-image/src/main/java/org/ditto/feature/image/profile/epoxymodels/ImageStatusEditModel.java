@@ -2,7 +2,6 @@ package org.ditto.feature.image.profile.epoxymodels;
 
 import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 
 import com.airbnb.epoxy.EpoxyAttribute;

@@ -6,7 +6,7 @@ import dagger.Module;
 import dagger.Provides;
 
 @Module(subcomponents = ImageViewModelSubComponent.class)
-public   class ImageModule {
+public class ImageModule {
 
     @Singleton
     @Provides

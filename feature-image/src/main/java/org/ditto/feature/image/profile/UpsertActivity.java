@@ -44,7 +44,7 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
 
     @Autowired(name = Constants.IMAGEURL)
     String mImageUrl;
-    private String mOldTitle="";
+    private String mOldTitle = "";
 
     private enum CollapsingToolbarLayoutState {
         EXPANDED,
@@ -159,7 +159,7 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
         mViewModel.getLiveImageIndexForUpsert().observe(this, indexImage -> {
             controller.setData(indexImage, mViewModel.isUpdate());
             mOldTitle = indexImage.title;
-            if(mViewModel.isUpdate()){
+            if (mViewModel.isUpdate()) {
                 fabdelButon.setVisibility(View.VISIBLE);
             }
         });

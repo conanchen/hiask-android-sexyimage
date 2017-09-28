@@ -1,16 +1,13 @@
 package org.ditto.feature.image.profile;
 
-import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import com.google.common.base.Strings;
 
-import org.ditto.lib.AbsentLiveData;
 import org.ditto.lib.dbroom.index.IndexImage;
 import org.ditto.lib.usecases.UsecaseFascade;
 import org.ditto.sexyimage.grpc.Common;
@@ -71,7 +68,7 @@ public class ImageIndexViewModel extends ViewModel {
 
 
     public String getNewTitle() {
-        return liveImageIndexForUpsert==null?"":liveImageIndexForUpsert.getValue().title;
+        return liveImageIndexForUpsert == null ? "" : liveImageIndexForUpsert.getValue().title;
     }
 
     public ImageIndexViewModel setNewUrl(String newUrl) {

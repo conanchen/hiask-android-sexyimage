@@ -1,6 +1,7 @@
 package org.ditto.lib.repository;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.paging.PagedList;
 import android.util.Log;
 
 import com.google.common.base.Strings;
@@ -8,7 +9,6 @@ import com.google.gson.Gson;
 
 import org.ditto.lib.apigrpc.ApigrpcFascade;
 import org.ditto.lib.apigrpc.ImageManService;
-import org.ditto.lib.apigrpc.model.Image;
 import org.ditto.lib.dbroom.RoomFascade;
 import org.ditto.lib.dbroom.index.IndexImage;
 import org.ditto.sexyimage.grpc.Common;
@@ -39,18 +39,18 @@ public class IndexImageRepository {
     }
 
 
-    public LiveData<List<IndexImage>> listImagesBy(int size) {
+    public LiveData<List<IndexImage>> listImagesBy(int pageSize) {
         apigrpcFascade.getImageManService().listImages(Common.ImageType.NORMAL, 0, new ImageManService.ImageManCallback() {
             @Override
-            public void onImageReceived(Image image) {
-                Log.i(TAG, String.format("onImageReceived save to database, image.url=%s\n image=[%s]", image.url, gson.toJson(image)));
+            public void onImageReceived(Common.ImageResponse response) {
+                Log.i(TAG, String.format("onImageReceived save to database, image.url=%s\n image=[%s]", response.getUrl(), gson.toJson(response)));
                 IndexImage indexImage = IndexImage.builder()
-                        .setUrl(image.url)
-                        .setInfoUrl(image.infoUrl)
-                        .setTitle(image.title)
-                        .setDesc(image.desc)
-                        .setType(image.type.name())
-                        .setLastUpdated(image.lastUpdated)
+                        .setUrl(response.getUrl())
+                        .setInfoUrl(response.getInfoUrl())
+                        .setTitle(response.getTitle())
+                        .setDesc(response.getDesc())
+                        .setType(response.getType().name())
+                        .setLastUpdated(response.getLastUpdated())
                         .build();
                 roomFascade.daoIndexImage.save(indexImage);
             }
@@ -66,7 +66,10 @@ public class IndexImageRepository {
 
             }
         });
-        return roomFascade.daoIndexImage.listImageIndicesBy(size);
+        //TODO: trying paging library
+//        return roomFascade.daoIndexImage.listPagingImageIndicesBy().create(0, new PagedList.Config.Builder().setPageSize(pageSize)
+//                .setPrefetchDistance(pageSize).setEnablePlaceholders(true).build());
+        return roomFascade.daoIndexImage.listImageIndicesBy(pageSize);
     }
 
 
@@ -79,7 +82,7 @@ public class IndexImageRepository {
         apigrpcFascade.getImageManService().delete(Imageman.DeleteRequest.newBuilder().setUrl(url).build(),
                 new ImageManService.ImageManCallback() {
                     @Override
-                    public void onImageReceived(Image image) {
+                    public void onImageReceived(Common.ImageResponse image) {
 
                     }
 
@@ -107,7 +110,7 @@ public class IndexImageRepository {
                 .build();
         apigrpcFascade.getImageManService().upsert(upsertRequest, new ImageManService.ImageManCallback() {
             @Override
-            public void onImageReceived(Image image) {
+            public void onImageReceived(Common.ImageResponse image) {
 
             }
 
@@ -127,7 +130,7 @@ public class IndexImageRepository {
     public void saveSampleImageIndices() {
         long now = System.currentTimeMillis();
         Random r = new Random();
-        for (int i = 0; i < 30; ) {
+        for (int i = 0; i < 50; ) {
             roomFascade.daoIndexImage.saveAll(
                     IndexImage.builder()
                             .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)

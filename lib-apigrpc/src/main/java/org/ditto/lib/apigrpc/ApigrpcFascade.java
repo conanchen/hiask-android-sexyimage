@@ -1,8 +1,6 @@
 package org.ditto.lib.apigrpc;
 
 
-import org.ditto.sexyimage.grpc.ImageManGrpc;
-
 import javax.inject.Inject;
 
 /**

@@ -1,12 +1,8 @@
 package org.ditto.feature.image.di;
 
-import android.arch.lifecycle.ViewModel;
-
 import org.ditto.feature.base.di.BaseViewModelFactory;
 import org.ditto.feature.image.index.ImageIndicesViewModel;
 import org.ditto.feature.image.profile.ImageIndexViewModel;
-
-import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

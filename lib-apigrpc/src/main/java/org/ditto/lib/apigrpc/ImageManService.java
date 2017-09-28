@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
-import org.ditto.lib.apigrpc.model.Image;
 import org.ditto.sexyimage.grpc.Common;
 import org.ditto.sexyimage.grpc.ImageManGrpc;
 import org.ditto.sexyimage.grpc.Imageman;
@@ -36,7 +35,7 @@ public class ImageManService {
     private final static String TAG = ImageManService.class.getSimpleName();
 
     public interface ImageManCallback {
-        void onImageReceived(Image image);
+        void onImageReceived(Common.ImageResponse image);
 
         void onImageUpserted(Common.StatusResponse statusResponse);
 
@@ -193,16 +192,9 @@ public class ImageManService {
 
         @Override
         public void onNext(Common.ImageResponse response) {
-            Image image = Image
-                    .builder()
-                    .setUrl(response.getUrl())
-                    .setInfoUrl(response.getInfoUrl())
-                    .setType(response.getType())
-                    .setLastUpdated(response.getLastUpdated())
-                    .build();
-            imageManCallback.onImageReceived(image);
+            imageManCallback.onImageReceived(response);
             listRequestStream.request(1);
-            logger.info(String.format("%s image=[%s]", "onNext listRequestStream.request(1)", gson.toJson(image)));
+            logger.info(String.format("%s image=[%s]", "onNext listRequestStream.request(1)", gson.toJson(response)));
         }
 
 

@@ -84,6 +84,7 @@ dependencies {
     annotationProcessor "android.arch.persistence.room:compiler:$arch_version"
     compile "android.arch.persistence.room:rxjava2:$arch_version"
     testCompile "android.arch.persistence.room:testing:$arch_version"
+    compile "android.arch.paging:runtime:$arch_paging_version"
 
     compile "com.google.guava:guava:$GOOGLE_GUAVA_VERSION";
 

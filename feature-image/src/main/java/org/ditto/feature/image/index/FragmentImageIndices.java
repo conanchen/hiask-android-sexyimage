@@ -24,10 +24,6 @@ import org.ditto.lib.Constants;
 import org.ditto.lib.dbroom.index.IndexImage;
 import org.ditto.sexyimage.grpc.Common;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -97,7 +93,9 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(ImageIndicesViewModel.class);
 
         viewModel.getLiveImageIndices().observe(this, messages -> {
-            Log.i(TAG, String.format("%s", gson.toJson(messages)));
+            for (int i = 0 ; i< messages.size();i++) {
+                Log.i(TAG, String.format("getLiveImageIndices i=%d message=[%s]", i,gson.toJson(messages.get(i))));
+            }
             controller.setData(messages);
         });
 

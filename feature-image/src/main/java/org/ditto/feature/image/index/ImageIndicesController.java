@@ -1,9 +1,13 @@
 package org.ditto.feature.image.index;
 
+import android.arch.paging.PagedList;
 import android.support.v7.widget.RecyclerView.RecycledViewPool;
 
+import com.airbnb.epoxy.AutoModel;
 import com.airbnb.epoxy.TypedEpoxyController;
+import com.google.common.base.Strings;
 
+import org.ditto.feature.base.epoxymodels.ItemStatusNetworkModel_;
 import org.ditto.feature.image.index.epoxymodels.ItemImageModel_;
 import org.ditto.lib.dbroom.index.IndexImage;
 
@@ -24,23 +28,28 @@ public class ImageIndicesController extends TypedEpoxyController<List<IndexImage
         setDebugLoggingEnabled(true);
     }
 
+    @AutoModel
+    ItemStatusNetworkModel_ itemStatusNetworkModel_;
+
     @Override
     protected void buildModels(List<IndexImage> messageIndices) {
+        itemStatusNetworkModel_.addTo(this);
         if (messageIndices != null) {
-            for (IndexImage carousel : messageIndices) {
-                add(new ItemImageModel_()
-                        .id(carousel.url)
-                        .url(carousel.url)
-                        .toprank(carousel.toprank)
-                        .clickListener((model, parentView, clickedView, position) -> {
-                            // A model click listener is used instead of a normal click listener so that we can get
-                            // the current position of the view. Since the view may have been moved when the colors
-                            // were shuffled we can't rely on the position of the model when it was added here to
-                            // be correct, since the model won't have been rebound when shuffled.
-                            callbacks.onMessageItemClicked(carousel, position);
-                        })
-                );
-
+            for (IndexImage indexImage : messageIndices) {
+                if (indexImage != null && !Strings.isNullOrEmpty(indexImage.url)) {
+                    add(new ItemImageModel_()
+                            .id(indexImage.url)
+                            .url(indexImage.url)
+                            .toprank(indexImage.toprank)
+                            .clickListener((model, parentView, clickedView, position) -> {
+                                // A model click listener is used instead of a normal click listener so that we can get
+                                // the current position of the view. Since the view may have been moved when the colors
+                                // were shuffled we can't rely on the position of the model when it was added here to
+                                // be correct, since the model won't have been rebound when shuffled.
+                                callbacks.onMessageItemClicked(indexImage, position);
+                            })
+                    );
+                }
             }
         }
     }

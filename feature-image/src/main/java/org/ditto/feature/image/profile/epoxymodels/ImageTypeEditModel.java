@@ -1,7 +1,6 @@
 package org.ditto.feature.image.profile.epoxymodels;
 
 import android.view.View;
-import android.widget.AutoCompleteTextView;
 import android.widget.RadioButton;
 
 import com.airbnb.epoxy.EpoxyAttribute;
@@ -16,7 +15,6 @@ import org.ditto.sexyimage.grpc.Common;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 import static com.airbnb.epoxy.EpoxyAttribute.Option.DoNotHash;
 
