@@ -34,7 +34,7 @@ public abstract class ImageInfoUrlEditModel extends EpoxyModelWithHolder<ImageIn
     public void bind(Holder holder) {
         holder.textViewInfoUrl.setText(url);
         holder.textViewInfoUrl.setOnFocusChangeListener((View view, boolean b) -> {
-                    callbacks.onUrlChanged(holder.textViewInfoUrl.getText().toString());
+                    callbacks.onInfoUrlChanged(holder.textViewInfoUrl.getText().toString());
                 }
         );
     }

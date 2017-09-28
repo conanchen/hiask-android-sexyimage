@@ -19,10 +19,9 @@ public interface DaoIndexImage {
     @Insert(onConflict = REPLACE)
     Long[] saveAll(IndexImage... messageIndices);
 
-    @Insert(onConflict = REPLACE)
-    List<Long> saveAll(List<IndexImage> messageIndices);
-
-
     @Query("SELECT * FROM IndexImage ORDER by lastUpdated DESC LIMIT :size")
     LiveData<List<IndexImage>> listImageIndicesBy(int size);
+
+    @Query("SELECT * FROM IndexImage WHERE url = :imageUrl LIMIT 1")
+    LiveData<IndexImage> find(String imageUrl);
 }

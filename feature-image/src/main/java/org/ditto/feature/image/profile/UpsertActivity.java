@@ -7,22 +7,19 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatImageView;
-import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.ButtonBarLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AutoCompleteTextView;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
-import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.alibaba.android.arouter.facade.annotation.Autowired;
 import com.alibaba.android.arouter.facade.annotation.Route;
+import com.alibaba.android.arouter.launcher.ARouter;
+import com.google.common.base.Strings;
 
 import org.ditto.feature.base.BaseActivity;
 import org.ditto.feature.base.SampleItemAnimator;
@@ -31,9 +28,7 @@ import org.ditto.feature.base.glide.GlideApp;
 import org.ditto.feature.image.R;
 import org.ditto.feature.image.R2;
 import org.ditto.feature.image.di.ImageViewModelFactory;
-import org.ditto.feature.image.index.ImageIndicesViewModel;
 import org.ditto.lib.Constants;
-import org.ditto.lib.dbroom.index.IndexImage;
 import org.ditto.sexyimage.grpc.Common;
 
 import javax.inject.Inject;
@@ -41,26 +36,15 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 @Route(path = "/feature_image/UpsertActivity")
 public class UpsertActivity extends BaseActivity implements ImageProfileEditController.AdapterCallbacks {
 
-    @Autowired(name= Constants.IMAGEURL)
-    String imageUrl;
-
-    private IndexImage mOldIndexImage = IndexImage
-            .builder()
-            .setUrl("http://n.7k7kimg.cn/2013/0316/1363403583271.jpg")
-            .setInfoUrl("http://n.7k7kimg.cn/2013/0316/1363403583271.jpg")
-            .setType(Common.ImageType.NORMAL.name())
-            .setLastUpdated(System.currentTimeMillis())
-            .setActive(true)
-            .setToprank(false)
-            .build();
-    private IndexImage newIndexImage = new IndexImage();
+    @Autowired(name = Constants.IMAGEURL)
+    String mImageUrl;
+    private String mOldTitle="";
 
     private enum CollapsingToolbarLayoutState {
         EXPANDED,
@@ -68,12 +52,12 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
         INTERNEDIATE
     }
 
-    private CollapsingToolbarLayoutState state;
+    private CollapsingToolbarLayoutState mCollapsingToolbarLayoutState;
 
     @Inject
-    ImageViewModelFactory viewModelFactory;
+    ImageViewModelFactory mViewModelFactory;
 
-    private ImageIndicesViewModel viewModel;
+    private ImageIndexViewModel mViewModel;
     private final RecyclerView.RecycledViewPool recycledViewPool = new RecyclerView.RecycledViewPool();
     private final ImageProfileEditController controller = new ImageProfileEditController(this, recycledViewPool);
     GridLayoutManager gridLayoutManager;
@@ -89,8 +73,11 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
     @BindView(R2.id.backdrop)
     AppCompatImageView image;
 
-    @BindView(R2.id.fab)
-    FloatingActionButton fabButon;
+    @BindView(R2.id.fabupsert)
+    FloatingActionButton fabupsertButon;
+
+    @BindView(R2.id.fabdel)
+    FloatingActionButton fabdelButon;
 
     @BindView(R2.id.toolbar_button_layout)
     ButtonBarLayout buttonBarLayout;
@@ -111,32 +98,34 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
         setupRecyclerView();
 
         setupViewModel();
-        AppBarLayout app_bar = (AppBarLayout) findViewById(R.id.app_bar);
-        app_bar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+        app_bar.addOnOffsetChangedListener((AppBarLayout appBarLayout, int verticalOffset) -> {
 
-                if (verticalOffset == 0) {
-                    if (state != CollapsingToolbarLayoutState.EXPANDED) {
-                        state = CollapsingToolbarLayoutState.EXPANDED;//修改状态标记为展开
-                        collapsingToolbarLayout.setTitle("EXPANDED");//设置title为EXPANDED
+            if (verticalOffset == 0) {
+                if (mCollapsingToolbarLayoutState != CollapsingToolbarLayoutState.EXPANDED) {
+                    mCollapsingToolbarLayoutState = CollapsingToolbarLayoutState.EXPANDED;//修改状态标记为展开
+                    collapsingToolbarLayout.setTitle("EXPANDED");//设置title为EXPANDED
+                    String title = Strings.isNullOrEmpty(mViewModel.getNewTitle())
+                            ? mOldTitle
+                            : mViewModel.getNewTitle();
+
+                    collapsingToolbarLayout.setTitle(title);
+                }
+            } else if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange()) {
+                if (mCollapsingToolbarLayoutState != CollapsingToolbarLayoutState.COLLAPSED) {
+                    collapsingToolbarLayout.setTitle("");//设置title不显示
+                    buttonBarLayout.setVisibility(View.VISIBLE);//隐藏播放按钮
+                    mCollapsingToolbarLayoutState = CollapsingToolbarLayoutState.COLLAPSED;//修改状态标记为折叠
+                }
+            } else {
+                if (mCollapsingToolbarLayoutState != CollapsingToolbarLayoutState.INTERNEDIATE) {
+                    if (mCollapsingToolbarLayoutState == CollapsingToolbarLayoutState.COLLAPSED) {
+                        buttonBarLayout.setVisibility(View.GONE);//由折叠变为中间状态时隐藏播放按钮
                     }
-                } else if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange()) {
-                    if (state != CollapsingToolbarLayoutState.COLLAPSED) {
-                        collapsingToolbarLayout.setTitle("");//设置title不显示
-                        buttonBarLayout.setVisibility(View.VISIBLE);//隐藏播放按钮
-                        state = CollapsingToolbarLayoutState.COLLAPSED;//修改状态标记为折叠
-                    }
-                } else {
-                    if (state != CollapsingToolbarLayoutState.INTERNEDIATE) {
-                        if (state == CollapsingToolbarLayoutState.COLLAPSED) {
-                            buttonBarLayout.setVisibility(View.GONE);//由折叠变为中间状态时隐藏播放按钮
-                        }
-                        collapsingToolbarLayout.setTitle("粉红猪小妹");//设置title为INTERNEDIATE
-                        state = CollapsingToolbarLayoutState.INTERNEDIATE;//修改状态标记为中间
-                    }
+                    collapsingToolbarLayout.setTitle("粉红图片");//设置title为INTERNEDIATE
+                    mCollapsingToolbarLayoutState = CollapsingToolbarLayoutState.INTERNEDIATE;//修改状态标记为中间
                 }
             }
+
         });
 
     }
@@ -165,24 +154,40 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
 
 
     private void setupViewModel() {
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(ImageIndicesViewModel.class);
-        controller.setData(mOldIndexImage);
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ImageIndexViewModel.class);
+        ARouter.getInstance().inject(this);
+        mViewModel.getLiveImageIndexForUpsert().observe(this, indexImage -> {
+            controller.setData(indexImage, mViewModel.isUpdate());
+            mOldTitle = indexImage.title;
+            if(mViewModel.isUpdate()){
+                fabdelButon.setVisibility(View.VISIBLE);
+            }
+        });
+        mViewModel.findForUpsert(mImageUrl);
     }
 
-    @OnClick(R2.id.fab)
-    public void onFabButtonClicked() {
-        Toast.makeText(this, "onFabButtonClicked", Toast.LENGTH_LONG).show();
+    @OnClick(R2.id.fabupsert)
+    public void onFabupsertButtonClicked() {
+        Toast.makeText(this, "onFabupsertButtonClicked", Toast.LENGTH_LONG).show();
+        mViewModel.saveUpdates();
+    }
+
+    @OnClick(R2.id.fabdel)
+    public void onFabdelButtonClicked() {
+        Toast.makeText(this, "onFabdelButtonClicked", Toast.LENGTH_LONG).show();
+        mViewModel.delete();
     }
 
     @OnClick(R2.id.saveButton)
     public void onSaveButtonClicked() {
         Toast.makeText(this, "onSaveButtonClicked", Toast.LENGTH_LONG).show();
+        mViewModel.saveUpdates();
     }
 
 
     @Override
     public void onUrlChanged(String imageUrl) {
-        Toast.makeText(this, "onUrlChanged " + imageUrl, Toast.LENGTH_LONG).show();
+
         GlideApp
                 .with(image)
 //                .load("http://n.7k7kimg.cn/2013/0316/1363403583271.jpg")
@@ -194,27 +199,27 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
                 .transition(withCrossFade())
                 .into(image);
 
-        newIndexImage.url = imageUrl;
+        mViewModel.setNewUrl(imageUrl);
     }
 
     @Override
     public void onStatusChanged(boolean active, boolean toprank) {
-        newIndexImage.active = active;
-        newIndexImage.toprank = toprank;
+        mViewModel.setNewActive(active).setNewToprank(toprank);
     }
 
     @Override
     public void onTitleChanged(String title) {
-        newIndexImage.title = title;
+
+        mViewModel.setNewTitle(title);
     }
 
     @Override
     public void onTypeChanged(Common.ImageType type) {
-        newIndexImage.type = type.name();
+        mViewModel.setNewType(type);
     }
 
     @Override
     public void onInfoUrlChanged(String url) {
-        newIndexImage.infoUrl = url;
+        mViewModel.setNewInfoUrl(url);
     }
 }

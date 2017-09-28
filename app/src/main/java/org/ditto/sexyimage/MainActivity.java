@@ -92,7 +92,7 @@ public class MainActivity extends BaseFragmentActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         //toolbar.setLogo(android.R.drawable.ic_dialog_email);
-        toolbar.setTitle("粉红猪小妹");
+        toolbar.setTitle("粉红图片");
         //以上3个属性必须在setSupportActionBar(toolbar)之前调用
         setSupportActionBar(toolbar);
         //设置导航Icon，必须在setSupportActionBar(toolbar)之后设置

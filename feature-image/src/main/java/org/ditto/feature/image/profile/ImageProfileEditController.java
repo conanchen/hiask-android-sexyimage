@@ -3,6 +3,7 @@ package org.ditto.feature.image.profile;
 import android.support.v7.widget.RecyclerView.RecycledViewPool;
 
 import com.airbnb.epoxy.AutoModel;
+import com.airbnb.epoxy.Typed2EpoxyController;
 import com.airbnb.epoxy.TypedEpoxyController;
 
 import org.ditto.feature.image.index.epoxymodels.ItemImageModel_;
@@ -18,7 +19,7 @@ import org.ditto.sexyimage.grpc.Common;
 
 import java.util.List;
 
-public class ImageProfileEditController extends TypedEpoxyController<IndexImage> {
+public class ImageProfileEditController extends Typed2EpoxyController<IndexImage, Boolean> {
     public interface AdapterCallbacks {
         void onUrlChanged(String url);
 
@@ -60,11 +61,24 @@ public class ImageProfileEditController extends TypedEpoxyController<IndexImage>
     }
 
     @Override
-    protected void buildModels(IndexImage indexImage) {
-        imageUrlEditModel_.url(indexImage.url).callbacks(callbacks).addTo(this);
-        imageInfoUrlEditModel_.url(indexImage.infoUrl).callbacks(callbacks).addTo(this);
-        imageTitleEditModel_.title(indexImage.title).callbacks(callbacks).addTo(this);
-        imageTypeEditModel_.type(indexImage.type).callbacks(callbacks).addTo(this);
+    protected void buildModels(IndexImage indexImage, Boolean isUpdate) {
+        imageUrlEditModel_.url(indexImage.url)
+                .isUpdate(isUpdate)
+                .callbacks(callbacks)
+                .addTo(this);
+
+        imageInfoUrlEditModel_.url(indexImage.infoUrl)
+                .callbacks(callbacks)
+                .addTo(this);
+
+        imageTitleEditModel_.title(indexImage.title)
+                .callbacks(callbacks)
+                .addTo(this);
+
+        imageTypeEditModel_.type(indexImage.type)
+                .callbacks(callbacks)
+                .addTo(this);
+
         imageStatusEditModel_.active(indexImage.active)
                 .toprank(indexImage.toprank)
                 .visitCount(indexImage.visitCount)

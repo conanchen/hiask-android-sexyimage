@@ -27,6 +27,9 @@ public abstract class ImageUrlEditModel extends EpoxyModelWithHolder<ImageUrlEdi
     @EpoxyAttribute
     String url;
 
+    @EpoxyAttribute
+    Boolean isUpdate;
+
     @EpoxyAttribute(DoNotHash)
     ImageProfileEditController.AdapterCallbacks callbacks;
 
@@ -38,6 +41,7 @@ public abstract class ImageUrlEditModel extends EpoxyModelWithHolder<ImageUrlEdi
                     callbacks.onUrlChanged(holder.textViewUrl.getText().toString());
                 }
         );
+        holder.textViewUrl.setEnabled(!isUpdate);
     }
 
     @Override

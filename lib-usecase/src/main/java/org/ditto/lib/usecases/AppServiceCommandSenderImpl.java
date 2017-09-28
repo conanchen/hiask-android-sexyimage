@@ -2,14 +2,7 @@ package org.ditto.lib.usecases;
 
 
 import android.arch.lifecycle.LifecycleService;
-import android.arch.lifecycle.Observer;
 import android.content.Intent;
-import android.support.annotation.Nullable;
-
-
-import org.ditto.lib.dbroom.image.ImageCommand;
-
-import java.util.List;
 
 import javax.inject.Inject;
 

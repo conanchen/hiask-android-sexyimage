@@ -50,43 +50,4 @@ public class UserUsecase {
                 .build();
         return repositoryFascade.userRepository.save(command).subscribeOn(Schedulers.io());
     }
-
-
-    public Observable<Long> updateConsultingdesc(String text) {
-        UserCommand command = UserCommand
-                .builder()
-                .setUuid(UUID.randomUUID().toString())
-                .setContent(UserCommand.Content
-                        .builder()
-                        .setUpdateConsultingdesc(
-                                UserCommand.UpdateConsultingdesc
-                                        .builder()
-                                        .setDetail(text)
-                                        .build())
-                        .build())
-                .setCommandStatus(CommandStatus.NEW)
-                .setCreated(System.currentTimeMillis())
-                .build();
-        return repositoryFascade.userRepository.save(command).subscribeOn(Schedulers.io());
-    }
-
-    public Observable<Long> updateNickname(String text) {
-        UserCommand command = UserCommand
-                .builder()
-                .setUuid(UUID.randomUUID().toString())
-                .setContent(UserCommand.Content
-                        .builder()
-                        .setUpdateNickname(
-                                UserCommand.UpdateNickname
-                                        .builder()
-                                        .setNickname(text)
-                                        .build())
-                        .build())
-                .setCommandStatus(CommandStatus.NEW)
-                .setCreated(System.currentTimeMillis())
-                .build();
-        return repositoryFascade.userRepository.save(command).subscribeOn(Schedulers.io());
-    }
-
-
 }

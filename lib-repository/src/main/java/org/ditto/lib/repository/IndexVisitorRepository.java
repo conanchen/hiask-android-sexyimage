@@ -3,7 +3,6 @@ package org.ditto.lib.repository;
 import android.arch.lifecycle.LiveData;
 
 import org.ditto.lib.dbroom.RoomFascade;
-import org.ditto.lib.dbroom.image.Buyanswer;
 import org.ditto.lib.dbroom.index.IndexVisitor;
 
 import java.util.List;
@@ -35,7 +34,7 @@ public class IndexVisitorRepository {
             roomFascade.daoIndexVisitor.saveAll(
                     IndexVisitor.builder()
                             .setUuid("uuid" + i++)
-                            .setType(Buyanswer.class.getSimpleName())
+                            .setType(IndexVisitor.class.getSimpleName())
                             .setTitle(i + "IndexVisitor BuyanswerMessage 标题title消灭一切害人虫昵称")
                             .setDetail(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则," +
                                     "用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图" +

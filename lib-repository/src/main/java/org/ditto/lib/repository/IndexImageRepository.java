@@ -3,6 +3,7 @@ package org.ditto.lib.repository;
 import android.arch.lifecycle.LiveData;
 import android.util.Log;
 
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 
 import org.ditto.lib.apigrpc.ApigrpcFascade;
@@ -11,6 +12,7 @@ import org.ditto.lib.apigrpc.model.Image;
 import org.ditto.lib.dbroom.RoomFascade;
 import org.ditto.lib.dbroom.index.IndexImage;
 import org.ditto.sexyimage.grpc.Common;
+import org.ditto.sexyimage.grpc.Imageman;
 
 import java.util.List;
 import java.util.Random;
@@ -38,19 +40,87 @@ public class IndexImageRepository {
 
 
     public LiveData<List<IndexImage>> listImagesBy(int size) {
-        apigrpcFascade.getImageManService().listImages(Common.ImageType.NORMAL, 0, image -> {
-            Log.i(TAG, String.format("onImageReceived save to database, image.url=%s\n image=[%s]", image.url, gson.toJson(image)));
-            IndexImage indexImage = IndexImage.builder()
-                    .setUrl(image.url)
-                    .setInfoUrl(image.infoUrl)
-                    .setTitle(image.title)
-                    .setDesc(image.desc)
-                    .setType(image.type.name())
-                    .setLastUpdated(image.lastUpdated)
-                    .build();
-            roomFascade.daoIndexImage.save(indexImage);
+        apigrpcFascade.getImageManService().listImages(Common.ImageType.NORMAL, 0, new ImageManService.ImageManCallback() {
+            @Override
+            public void onImageReceived(Image image) {
+                Log.i(TAG, String.format("onImageReceived save to database, image.url=%s\n image=[%s]", image.url, gson.toJson(image)));
+                IndexImage indexImage = IndexImage.builder()
+                        .setUrl(image.url)
+                        .setInfoUrl(image.infoUrl)
+                        .setTitle(image.title)
+                        .setDesc(image.desc)
+                        .setType(image.type.name())
+                        .setLastUpdated(image.lastUpdated)
+                        .build();
+                roomFascade.daoIndexImage.save(indexImage);
+            }
+
+            @Override
+            public void onImageDeleted(Common.StatusResponse value) {
+
+            }
+
+
+            @Override
+            public void onImageUpserted(Common.StatusResponse statusResponse) {
+
+            }
         });
         return roomFascade.daoIndexImage.listImageIndicesBy(size);
+    }
+
+
+    public LiveData<IndexImage> find(String imageUrl) {
+        return roomFascade.daoIndexImage.find(imageUrl);
+    }
+
+
+    public void delete(String url) {
+        apigrpcFascade.getImageManService().delete(Imageman.DeleteRequest.newBuilder().setUrl(url).build(),
+                new ImageManService.ImageManCallback() {
+                    @Override
+                    public void onImageReceived(Image image) {
+
+                    }
+
+                    @Override
+                    public void onImageUpserted(Common.StatusResponse statusResponse) {
+
+                    }
+
+                    @Override
+                    public void onImageDeleted(Common.StatusResponse statusResponse) {
+                        Log.i(TAG, String.format("onImageDeleted(Common.StatusResponse=[%s]", gson.toJson(statusResponse)));
+                    }
+                });
+    }
+
+    public void upsert(IndexImage indexImage) {
+        Imageman.UpsertRequest upsertRequest = Imageman.UpsertRequest
+                .newBuilder()
+                .setUrl(indexImage.url)
+                .setInfoUrl(Strings.isNullOrEmpty(indexImage.infoUrl) ? "" : indexImage.infoUrl)
+                .setTitle(Strings.isNullOrEmpty(indexImage.title) ? "" : indexImage.title)
+                .setType(Strings.isNullOrEmpty(indexImage.type) ? Common.ImageType.SECRET : Common.ImageType.valueOf(indexImage.type))
+                .setActive(indexImage.active)
+                .setToprank(indexImage.toprank)
+                .build();
+        apigrpcFascade.getImageManService().upsert(upsertRequest, new ImageManService.ImageManCallback() {
+            @Override
+            public void onImageReceived(Image image) {
+
+            }
+
+            @Override
+            public void onImageDeleted(Common.StatusResponse value) {
+
+            }
+
+            @Override
+            public void onImageUpserted(Common.StatusResponse statusResponse) {
+                Log.i(TAG, String.format("onImageUpserted(Common.StatusResponse=[%s]", gson.toJson(statusResponse)));
+            }
+        });
     }
 
 

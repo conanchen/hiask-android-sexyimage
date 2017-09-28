@@ -23,7 +23,7 @@ service ImageMan {
     //
     // Obtains images whose types are the given normal/poster/sexy/porn.  Results are
     // streamed rather than returned at once (e.g. in a response message with a
-    // repeated field), as the lastUpdated maybe an very old time and contain a
+    // repeated field), as the lastUpsertd maybe an very old time and contain a
     // huge number of images.
     rpc List (ListRequest) returns (stream ImageResponse) {
     }
@@ -31,10 +31,7 @@ service ImageMan {
     rpc Delete (DeleteRequest) returns (StatusResponse) {
     }
 
-    rpc Update (UpdateRequest) returns (StatusResponse) {
-    }
-
-    rpc Create (CreateRequest) returns (StatusResponse) {
+    rpc Upsert (UpsertRequest) returns (StatusResponse) {
     }
 }
 
@@ -48,7 +45,7 @@ message DeleteRequest {
     string url = 1;
 }
 
-message UpdateRequest {
+message UpsertRequest {
     string url = 1;
     string infoUrl = 2;
     string title = 3;
@@ -57,8 +54,3 @@ message UpdateRequest {
     bool active = 6;
     bool toprank = 7;
 }
-
-message CreateRequest {
-    string url = 1;
-}
-

@@ -1,7 +1,10 @@
 package org.ditto.feature.image.di;
 
 
+import android.arch.lifecycle.ViewModel;
+
 import org.ditto.feature.image.index.ImageIndicesViewModel;
+import org.ditto.feature.image.profile.ImageIndexViewModel;
 
 import dagger.Subcomponent;
 
@@ -15,6 +18,8 @@ public interface ImageViewModelSubComponent {
 
 
     ImageIndicesViewModel createImageIndicesViewModel();
+
+    ImageIndexViewModel createImageIndexViewModel();
 
 
     @Subcomponent.Builder

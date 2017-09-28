@@ -6,9 +6,12 @@ import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.VisibleForTesting;
 
+import com.google.common.base.Strings;
+
 import org.ditto.lib.AbsentLiveData;
 import org.ditto.lib.dbroom.index.IndexImage;
 import org.ditto.lib.usecases.UsecaseFascade;
+import org.ditto.sexyimage.grpc.Common;
 
 import java.util.List;
 
@@ -18,6 +21,8 @@ public class ImageIndicesViewModel extends ViewModel {
     @VisibleForTesting
     final MutableLiveData<String> mutableLogin = new MutableLiveData<>();
     private final LiveData<List<IndexImage>> liveImageIndices;
+
+
 
     @Inject
     UsecaseFascade usecaseFascade;
@@ -29,7 +34,7 @@ public class ImageIndicesViewModel extends ViewModel {
             if (login == null) {
                 return AbsentLiveData.create();
             } else {
-                return usecaseFascade.repositoryFascade.indexImageRepository.listImagesBy(100);
+                return usecaseFascade.repositoryFascade.indexImageRepository.listImagesBy(20);
             }
         });
     }

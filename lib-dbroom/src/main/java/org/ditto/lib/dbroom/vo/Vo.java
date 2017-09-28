@@ -7,14 +7,7 @@ import android.support.v7.app.AlertDialog;
  */
 
 public class Vo {
-    public VoAdvert voAdvert;
-    public VoAudio voAudio;
-    public VoBuyanswer voBuyanswer;
-    public VoBuyread voBuyread;
-    public VoEmail voEmail;
-    public VoGeofence voGeofence;
-    public VoGift voGift;
-    public VoImage voImage;
+
     public VoLocation voLocation;
     public VoNamecard voNamecard;
     public VoPhone voPhone;
@@ -29,15 +22,7 @@ public class Vo {
     public Vo() {
     }
 
-    public Vo(VoAdvert voAdvert, VoAudio voAudio, VoBuyanswer voBuyanswer, VoBuyread voBuyread, VoEmail voEmail, VoGeofence voGeofence, VoGift voGift, VoImage voImage, VoLocation voLocation, VoNamecard voNamecard, VoPhone voPhone, VoSellread voSellread, VoShop voShop, VoText voText, VoUgroup voUgroup, VoUrl voUrl, VoUser voUser, VoVideo voVideo) {
-        this.voAdvert = voAdvert;
-        this.voAudio = voAudio;
-        this.voBuyanswer = voBuyanswer;
-        this.voBuyread = voBuyread;
-        this.voEmail = voEmail;
-        this.voGeofence = voGeofence;
-        this.voGift = voGift;
-        this.voImage = voImage;
+    public Vo(VoLocation voLocation, VoNamecard voNamecard, VoPhone voPhone, VoSellread voSellread, VoShop voShop, VoText voText, VoUgroup voUgroup, VoUrl voUrl, VoUser voUser, VoVideo voVideo) {
         this.voLocation = voLocation;
         this.voNamecard = voNamecard;
         this.voPhone = voPhone;
@@ -56,14 +41,6 @@ public class Vo {
     }
 
     public static final class Builder {
-        private VoAdvert voAdvert;
-        private VoAudio voAudio;
-        private VoBuyanswer voBuyanswer;
-        private VoBuyread voBuyread;
-        private VoEmail voEmail;
-        private VoGeofence voGeofence;
-        private VoGift voGift;
-        private VoImage voImage;
         private VoLocation voLocation;
         private VoNamecard voNamecard;
         private VoPhone voPhone;
@@ -79,50 +56,11 @@ public class Vo {
         }
 
         public Vo build() {
-            return new Vo(voAdvert, voAudio, voBuyanswer, voBuyread,
-                    voEmail, voGeofence, voGift, voImage, voLocation, voNamecard, voPhone,
+            return new Vo(voLocation, voNamecard, voPhone,
                     voSellread, voShop, voText, voUgroup, voUrl, voUser, voVideo);
         }
 
-        public Builder setVoAdvert(VoAdvert voAdvert) {
-            this.voAdvert = voAdvert;
-            return this;
-        }
 
-        public Builder setVoAudio(VoAudio voAudio) {
-            this.voAudio = voAudio;
-            return this;
-        }
-
-        public Builder setVoBuyanswer(VoBuyanswer voBuyanswer) {
-            this.voBuyanswer = voBuyanswer;
-            return this;
-        }
-
-        public Builder setVoBuyread(VoBuyread voBuyread) {
-            this.voBuyread = voBuyread;
-            return this;
-        }
-
-        public Builder setVoEmail(VoEmail voEmail) {
-            this.voEmail = voEmail;
-            return this;
-        }
-
-        public Builder setVoGeofence(VoGeofence voGeofence) {
-            this.voGeofence = voGeofence;
-            return this;
-        }
-
-        public Builder setVoGift(VoGift voGift) {
-            this.voGift = voGift;
-            return this;
-        }
-
-        public Builder setVoImage(VoImage voImage) {
-            this.voImage = voImage;
-            return this;
-        }
 
         public Builder setVoLocation(VoLocation voLocation) {
             this.voLocation = voLocation;

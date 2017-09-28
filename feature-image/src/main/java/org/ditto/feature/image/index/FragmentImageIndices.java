@@ -5,12 +5,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.google.common.base.Preconditions;
+import com.google.gson.Gson;
 
 import org.ditto.feature.base.BaseFragment;
 import org.ditto.feature.base.SampleItemAnimator;
@@ -37,7 +39,8 @@ import timber.log.Timber;
  * <p/>
  */
 public class FragmentImageIndices extends BaseFragment implements Injectable, ImageIndicesController.AdapterCallbacks {
-
+    private final static String TAG = FragmentImageIndices.class.getSimpleName();
+    private final static Gson gson = new Gson();
     @Inject
     ImageViewModelFactory viewModelFactory;
 
@@ -94,6 +97,7 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(ImageIndicesViewModel.class);
 
         viewModel.getLiveImageIndices().observe(this, messages -> {
+            Log.i(TAG, String.format("%s", gson.toJson(messages)));
             controller.setData(messages);
         });
 
