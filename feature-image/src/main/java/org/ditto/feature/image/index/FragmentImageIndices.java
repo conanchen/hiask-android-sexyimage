@@ -40,6 +40,7 @@ import timber.log.Timber;
 public class FragmentImageIndices extends BaseFragment implements Injectable, ImageIndicesController.AdapterCallbacks {
     private final static String TAG = FragmentImageIndices.class.getSimpleName();
     private final static Gson gson = new Gson();
+
     @Inject
     ImageViewModelFactory viewModelFactory;
 
@@ -96,15 +97,7 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(ImageIndicesViewModel.class);
 
         viewModel.getLiveImageIndices().observe(this, dataNstatus -> {
-            List<IndexImage> messages = dataNstatus.first;
-            Status status = dataNstatus.second;
-            if (messages != null) {
-                for (int i = 0; i < messages.size(); i++) {
-                    Log.i(TAG, String.format("getLiveImageIndices i=%d message=[%s]", i, gson.toJson(messages.get(i))));
-                }
-            }
-            Log.i(TAG, String.format("getLiveImageIndices status=[%s]",   gson.toJson(status)));
-            controller.setData(messages,status);
+            controller.setData(dataNstatus);
         });
 
         viewModel.refresh();
@@ -144,7 +137,7 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
     @Override
     public void onMessageItemClicked(IndexImage indexImageIssue, int position) {
         ARouter.getInstance().build("/feature_image/UpsertActivity")
-                .withString(Constants.IMAGEURL, indexImageIssue.url)
+                .withString(Constants.ROUTE_IMAGEURL, indexImageIssue.url)
                 .navigation();
     }
 }

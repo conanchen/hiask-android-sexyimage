@@ -39,10 +39,11 @@ import butterknife.OnClick;
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 @Route(path = "/feature_image/UpsertActivity")
-public class UpsertActivity extends BaseActivity implements ImageProfileEditController.AdapterCallbacks {
+public class UpsertActivity extends BaseActivity {
 
-    @Autowired(name = Constants.IMAGEURL)
-    String mImageUrl;
+    @Autowired(name = Constants.ROUTE_IMAGEURL)
+    String mRouteImageUrl;
+
     private String mImageTitle = "";
 
     private enum CollapsingToolbarLayoutState {
@@ -58,8 +59,7 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
 
     private ImageIndexViewModel mViewModel;
     private final RecyclerView.RecycledViewPool recycledViewPool = new RecyclerView.RecycledViewPool();
-    private final ImageProfileEditController controller = new ImageProfileEditController(this, recycledViewPool);
-    GridLayoutManager gridLayoutManager;
+    private final ImageProfileEditController controller = new ImageProfileEditController(new ControllerCallback(), recycledViewPool);
     private static final int SPAN_COUNT = 1;
 
     @BindView(R2.id.itemlist)
@@ -137,7 +137,7 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
         // to set our span count on the controller and then get the span size lookup object from
         // the controller. This look up object will delegate span size lookups to each model.
         controller.setSpanCount(SPAN_COUNT);
-        gridLayoutManager = new GridLayoutManager(this, SPAN_COUNT);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, SPAN_COUNT);
         gridLayoutManager.setSpanSizeLookup(controller.getSpanSizeLookup());
         recyclerView.setLayoutManager(gridLayoutManager);
 
@@ -158,63 +158,69 @@ public class UpsertActivity extends BaseActivity implements ImageProfileEditCont
                 fabdelButon.setVisibility(View.VISIBLE);
             }
         });
-        mViewModel.findForUpsert(mImageUrl);
+        mViewModel.getLiveUpsertStatus().observe(this, status -> {
+            Toast.makeText(UpsertActivity.this, String.format("getLiveUpsertStatus status.code=%s \nstatus.message=%s", status.code, status.message), Toast.LENGTH_LONG).show();
+        });
+
+        mViewModel.getLiveDeleteStatus().observe(this, status -> {
+            Toast.makeText(UpsertActivity.this, String.format("getLiveDeleteStatus status.code=%s \nstatus.message=%s", status.code, status.message), Toast.LENGTH_LONG).show();
+        });
+
+        mViewModel.findForUpsert(mRouteImageUrl);
     }
 
     @OnClick(R2.id.fabupsert)
     public void onFabupsertButtonClicked() {
-        Toast.makeText(this, "onFabupsertButtonClicked", Toast.LENGTH_LONG).show();
         mViewModel.saveUpdates();
     }
 
     @OnClick(R2.id.fabdel)
     public void onFabdelButtonClicked() {
-        Toast.makeText(this, "onFabdelButtonClicked", Toast.LENGTH_LONG).show();
         mViewModel.delete();
     }
 
     @OnClick(R2.id.saveButton)
     public void onSaveButtonClicked() {
-        Toast.makeText(this, "onSaveButtonClicked", Toast.LENGTH_LONG).show();
         mViewModel.saveUpdates();
     }
 
+    private class ControllerCallback implements ImageProfileEditController.AdapterCallbacks {
+        @Override
+        public void onUrlChanged(String imageUrl) {
 
-    @Override
-    public void onUrlChanged(String imageUrl) {
-
-        GlideApp
-                .with(image)
+            GlideApp
+                    .with(image)
 //                .load("http://n.7k7kimg.cn/2013/0316/1363403583271.jpg")
-                .load(imageUrl)
-                .placeholder(R.drawable.ask28)
-                .error(R.drawable.ask28)
-                .fallback(new ColorDrawable(Color.GRAY))
-                .centerCrop()
-                .transition(withCrossFade())
-                .into(image);
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ask28)
+                    .error(R.drawable.ask28)
+                    .fallback(new ColorDrawable(Color.GRAY))
+                    .centerCrop()
+                    .transition(withCrossFade())
+                    .into(image);
 
-        mViewModel.setNewUrl(imageUrl);
-    }
+            mViewModel.setNewUrl(imageUrl);
+        }
 
-    @Override
-    public void onStatusChanged(boolean active, boolean toprank) {
-        mViewModel.setNewActive(active).setNewToprank(toprank);
-    }
+        @Override
+        public void onStatusChanged(boolean active, boolean toprank) {
+            mViewModel.setNewActive(active).setNewToprank(toprank);
+        }
 
-    @Override
-    public void onTitleChanged(String title) {
-        mImageTitle = title;
-        mViewModel.setNewTitle(title);
-    }
+        @Override
+        public void onTitleChanged(String title) {
+            mImageTitle = title;
+            mViewModel.setNewTitle(title);
+        }
 
-    @Override
-    public void onTypeChanged(Common.ImageType type) {
-        mViewModel.setNewType(type);
-    }
+        @Override
+        public void onTypeChanged(Common.ImageType type) {
+            mViewModel.setNewType(type);
+        }
 
-    @Override
-    public void onInfoUrlChanged(String url) {
-        mViewModel.setNewInfoUrl(url);
+        @Override
+        public void onInfoUrlChanged(String url) {
+            mViewModel.setNewInfoUrl(url);
+        }
     }
 }

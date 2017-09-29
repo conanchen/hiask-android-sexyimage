@@ -1,7 +1,6 @@
 package org.ditto.lib.repository;
 
 import android.arch.lifecycle.LiveData;
-import android.support.v4.util.Pair;
 import android.util.Log;
 
 import com.google.common.base.Strings;
@@ -103,72 +102,93 @@ public class IndexImageRepository {
     }
 
 
-    public void delete(String url) {
-        apigrpcFascade.getImageManService().delete(Imageman.DeleteRequest.newBuilder().setUrl(url).build(),
-                new ImageManService.ImageManCallback() {
-                    @Override
-                    public void onImageReceived(Common.ImageResponse image) {
+    public LiveData<Status> delete(String url) {
+        return new LiveData<Status>(){
+            @Override
+            protected void onActive() {
+                apigrpcFascade.getImageManService().delete(Imageman.DeleteRequest.newBuilder().setUrl(url).build(),
+                        new ImageManService.ImageManCallback() {
+                            @Override
+                            public void onImageReceived(Common.ImageResponse image) {
 
-                    }
+                            }
 
-                    @Override
-                    public void onImageUpserted(Common.StatusResponse statusResponse) {
+                            @Override
+                            public void onImageUpserted(Common.StatusResponse statusResponse) {
 
-                    }
+                            }
 
-                    @Override
-                    public void onImageDeleted(Common.StatusResponse statusResponse) {
-                        Log.i(TAG, String.format("onImageDeleted(Common.StatusResponse=[%s]", gson.toJson(statusResponse)));
-                    }
+                            @Override
+                            public void onImageDeleted(Common.StatusResponse statusResponse) {
+                                Log.i(TAG, String.format("onImageDeleted(Common.StatusResponse=[%s]", gson.toJson(statusResponse)));
+                                postValue(Status.builder().setCode(Status.Code.SUCCESS).setMessage(gson.toJson(statusResponse)).build());
+                            }
 
-                    @Override
-                    public void onApiCompleted() {
+                            @Override
+                            public void onApiCompleted() {
 
-                    }
+                            }
 
-                    @Override
-                    public void onApiError() {
-                    }
+                            @Override
+                            public void onApiError() {
+                                postValue(Status.builder().setCode(Status.Code.BAD_URL).setMessage("api error").build());
+                            }
 
-                });
+                        });
+            }
+        };
     }
 
-    public void upsert(IndexImage indexImage) {
-        Imageman.UpsertRequest upsertRequest = Imageman.UpsertRequest
-                .newBuilder()
-                .setUrl(indexImage.url)
-                .setInfoUrl(Strings.isNullOrEmpty(indexImage.infoUrl) ? "" : indexImage.infoUrl)
-                .setTitle(Strings.isNullOrEmpty(indexImage.title) ? "" : indexImage.title)
-                .setType(Strings.isNullOrEmpty(indexImage.type) ? Common.ImageType.SECRET : Common.ImageType.valueOf(indexImage.type))
-                .setActive(indexImage.active)
-                .setToprank(indexImage.toprank)
-                .build();
-        apigrpcFascade.getImageManService().upsert(upsertRequest, new ImageManService.ImageManCallback() {
+    public LiveData<Status> upsert(final IndexImage indexImage) {
+        return new LiveData<Status>() {
             @Override
-            public void onImageReceived(Common.ImageResponse image) {
+            protected void onActive() {
+                Imageman.UpsertRequest upsertRequest = Imageman.UpsertRequest
+                        .newBuilder()
+                        .setUrl(indexImage.url)
+                        .setInfoUrl(Strings.isNullOrEmpty(indexImage.infoUrl) ? "" : indexImage.infoUrl)
+                        .setTitle(Strings.isNullOrEmpty(indexImage.title) ? "" : indexImage.title)
+                        .setType(Strings.isNullOrEmpty(indexImage.type) ? Common.ImageType.SECRET : Common.ImageType.valueOf(indexImage.type))
+                        .setActive(indexImage.active)
+                        .setToprank(indexImage.toprank)
+                        .build();
 
+                apigrpcFascade.getImageManService().
+
+                        upsert(upsertRequest, new ImageManService.ImageManCallback() {
+                            @Override
+                            public void onImageReceived(Common.ImageResponse image) {
+
+                            }
+
+                            @Override
+                            public void onImageDeleted(Common.StatusResponse value) {
+
+                            }
+
+                            @Override
+                            public void onImageUpserted(Common.StatusResponse statusResponse) {
+                                Log.i(TAG, String.format("onImageUpserted(Common.StatusResponse=[%s]", gson.toJson(statusResponse)));
+                                postValue(Status.builder().setCode(Status.Code.SUCCESS).setMessage(gson.toJson(statusResponse)).build());
+                            }
+
+                            @Override
+                            public void onApiCompleted() {
+
+                            }
+
+                            @Override
+                            public void onApiError() {
+                                postValue(Status.builder().setCode(Status.Code.BAD_URL).setMessage("api error").build());
+                            }
+                        });
             }
 
             @Override
-            public void onImageDeleted(Common.StatusResponse value) {
-
+            protected void onInactive() {
+                super.onInactive();
             }
-
-            @Override
-            public void onImageUpserted(Common.StatusResponse statusResponse) {
-                Log.i(TAG, String.format("onImageUpserted(Common.StatusResponse=[%s]", gson.toJson(statusResponse)));
-            }
-
-            @Override
-            public void onApiCompleted() {
-
-            }
-
-            @Override
-            public void onApiError() {
-
-            }
-        });
+        };
     }
 
 

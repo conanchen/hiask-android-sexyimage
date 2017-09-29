@@ -8,7 +8,10 @@ import android.support.annotation.VisibleForTesting;
 
 import com.google.common.base.Strings;
 
+import org.ditto.lib.AbsentLiveData;
 import org.ditto.lib.dbroom.index.IndexImage;
+import org.ditto.lib.repository.util.Status;
+import org.ditto.lib.system.di.SystemModule;
 import org.ditto.lib.usecases.UsecaseFascade;
 import org.ditto.sexyimage.grpc.Common;
 
@@ -18,10 +21,25 @@ public class ImageIndexViewModel extends ViewModel {
     private final static String TAG = ImageIndexViewModel.class.getSimpleName();
     @VisibleForTesting
     final MutableLiveData<String> mutableUrl = new MutableLiveData<String>();
+    @VisibleForTesting
+    final MutableLiveData<Long> mutableUpsert = new MutableLiveData<Long>();
+    @VisibleForTesting
+    final MutableLiveData<Long> mutableDelete = new MutableLiveData<Long>();
+
     private final LiveData<IndexImage> liveImageIndexForUpsert;
+    private final LiveData<Status> liveUpsertStatus;
+    private final LiveData<Status> liveDeleteStatus;
 
     public LiveData<IndexImage> getLiveImageIndexForUpsert() {
         return liveImageIndexForUpsert;
+    }
+
+    public LiveData<Status> getLiveUpsertStatus() {
+        return liveUpsertStatus;
+    }
+
+    public LiveData<Status> getLiveDeleteStatus() {
+        return liveDeleteStatus;
     }
 
     @Inject
@@ -31,10 +49,12 @@ public class ImageIndexViewModel extends ViewModel {
     @Inject
     public ImageIndexViewModel() {
         liveImageIndexForUpsert = Transformations.switchMap(mutableUrl, (String url) -> {
-            LiveData<IndexImage> result = null;
+            LiveData<IndexImage> result = AbsentLiveData.create();
+            ;
             if (!Strings.isNullOrEmpty(url)) {
                 result = usecaseFascade.repositoryFascade.indexImageRepository.find(url);
             }
+
             if (result == null) {
                 result = new LiveData<IndexImage>() {
                     @Override
@@ -61,7 +81,13 @@ public class ImageIndexViewModel extends ViewModel {
             return result;
 
         });
+        liveUpsertStatus = Transformations.switchMap(mutableUpsert, (Long time) -> {
+              return usecaseFascade.repositoryFascade.indexImageRepository.upsert(liveImageIndexForUpsert.getValue());
+        });
+        liveDeleteStatus = Transformations.switchMap(mutableDelete,(Long time)->{
+            return   usecaseFascade.repositoryFascade.indexImageRepository.delete(mutableUrl.getValue());
 
+        });
     }
 
     private boolean update;
@@ -107,13 +133,12 @@ public class ImageIndexViewModel extends ViewModel {
     }
 
     public void saveUpdates() {
-
-        usecaseFascade.repositoryFascade.indexImageRepository.upsert(liveImageIndexForUpsert.getValue());
+        mutableUpsert.setValue(System.currentTimeMillis());
     }
 
     public void delete() {
         if (isUpdate()) {
-            usecaseFascade.repositoryFascade.indexImageRepository.delete(mutableUrl.getValue());
+            mutableDelete.setValue(System.currentTimeMillis());
         }
     }
 }

@@ -24,7 +24,7 @@ public class Constants {
 	public static final String ROUTE = "ROUTE";
 	public static final String IMAGETYPE = "IMAGETYPE";
 	public static final String IMAGE_NORMAL = "NORMAL";
-	public static final String IMAGEURL = "IMAGEURL";
+	public static final String ROUTE_IMAGEURL = "ROUTE_IMAGEURL";
 
     public static class ShowMsgActivity {
 		public static final String STitle = "showmsg_title";
