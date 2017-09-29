@@ -40,11 +40,11 @@ public class IndexImageRepository {
     }
 
 
-    public LiveDataAndStatus<List<IndexImage>> list2ImagesBy(int pageSize) {
+    public LiveDataAndStatus<List<IndexImage>> list2ImagesBy(Common.ImageType imageType,int pageSize) {
         LiveData<Status> liveStatus = new LiveData<Status>() {
             @Override
             protected void onActive() {
-                apigrpcFascade.getImageManService().listImages(Common.ImageType.NORMAL, 0,
+                apigrpcFascade.getImageManService().listImages(imageType, 0,
                         new ImageManService.ImageManCallback() {
                             @Override
                             public void onImageReceived(Common.ImageResponse response) {
@@ -92,7 +92,7 @@ public class IndexImageRepository {
         // TODO: trying paging library
         // return roomFascade.daoIndexImage.listPagingImageIndicesBy().create(0, new PagedList.Config.Builder().setPageSize(pageSize)
         //                .setPrefetchDistance(pageSize).setEnablePlaceholders(true).build());
-        LiveData<List<IndexImage>> liveData = roomFascade.daoIndexImage.listImageIndicesBy(pageSize);
+        LiveData<List<IndexImage>> liveData = roomFascade.daoIndexImage.listImageIndicesBy(imageType.name(),pageSize);
         return new LiveDataAndStatus<>(liveData, liveStatus);
     }
 
@@ -131,6 +131,7 @@ public class IndexImageRepository {
 
                             @Override
                             public void onApiError() {
+                                Log.i(TAG, String.format("call onApiError"));
                                 postValue(Status.builder().setCode(Status.Code.BAD_URL).setMessage("api error").build());
                             }
 
@@ -179,6 +180,7 @@ public class IndexImageRepository {
 
                             @Override
                             public void onApiError() {
+                                Log.i(TAG, String.format("call onApiError"));
                                 postValue(Status.builder().setCode(Status.Code.BAD_URL).setMessage("api error").build());
                             }
                         });

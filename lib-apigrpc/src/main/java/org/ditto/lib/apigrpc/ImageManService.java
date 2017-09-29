@@ -113,12 +113,12 @@ public class ImageManService {
 
                                 @Override
                                 public void onError(Throwable t) {
-
+                                    callback.onApiError();
                                 }
 
                                 @Override
                                 public void onCompleted() {
-
+                                    callback.onApiCompleted();
                                 }
                             });
                         }
@@ -127,6 +127,7 @@ public class ImageManService {
                     @Override
                     public void onError(Throwable t) {
                         Log.i(TAG, String.format("onError grpc service check health\n%s", t.getMessage()));
+                        callback.onApiError();
                     }
 
                     @Override

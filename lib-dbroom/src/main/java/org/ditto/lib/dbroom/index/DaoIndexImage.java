@@ -20,8 +20,8 @@ public interface DaoIndexImage {
     @Insert(onConflict = REPLACE)
     Long[] saveAll(IndexImage... messageIndices);
 
-    @Query("SELECT * FROM IndexImage ORDER by lastUpdated DESC LIMIT :size")
-    LiveData<List<IndexImage>> listImageIndicesBy(int size);
+    @Query("SELECT * FROM IndexImage WHERE type = :imageType ORDER by lastUpdated DESC LIMIT :size")
+    LiveData<List<IndexImage>> listImageIndicesBy(String imageType,int size);
 
     @Query("SELECT * FROM IndexImage ORDER by lastUpdated DESC")
     public abstract LivePagedListProvider<Integer , IndexImage> listPagingImageIndicesBy();

@@ -22,16 +22,12 @@ import org.ditto.feature.image.R2;
 import org.ditto.feature.image.di.ImageViewModelFactory;
 import org.ditto.lib.Constants;
 import org.ditto.lib.dbroom.index.IndexImage;
-import org.ditto.lib.repository.util.Status;
 import org.ditto.sexyimage.grpc.Common;
-
-import java.util.List;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import timber.log.Timber;
 
 /**
  * A fragment representing a listCommandsBy of Items.
@@ -82,7 +78,9 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
     @Override
     public void onResume() {
         super.onResume();
-        viewModel.refresh();
+        Preconditions.checkNotNull(this.getArguments().getString(Constants.IMAGETYPE));
+        Common.ImageType imageType = Common.ImageType.valueOf(this.getArguments().getString(Constants.IMAGETYPE));
+        viewModel.refresh(imageType);
     }
 
     @Override
@@ -93,14 +91,15 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
 
 
     private void setupController() {
-        Timber.d("calling setupController");
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(ImageIndicesViewModel.class);
 
         viewModel.getLiveImageIndices().observe(this, dataNstatus -> {
+            Log.i(TAG, String.format("ImageType=%s dataNstatus.first=%s",
+                    this.getArguments().getString(Constants.IMAGETYPE),
+                    dataNstatus.first == null ? "no image" : dataNstatus.first.size() + " images"));
             controller.setData(dataNstatus);
         });
 
-        viewModel.refresh();
     }
 
     @Override

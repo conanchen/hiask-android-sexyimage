@@ -45,7 +45,7 @@ public abstract class ImageStatusEditModel extends EpoxyModelWithHolder<ImageSta
     @EpoxyAttribute(DoNotHash)
     ImageProfileEditController.AdapterCallbacks callbacks;
 
-    private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     @Override
     public void bind(Holder holder) {

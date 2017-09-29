@@ -151,10 +151,11 @@ public class UpsertActivity extends BaseActivity {
     private void setupViewModel() {
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ImageIndexViewModel.class);
         ARouter.getInstance().inject(this);
-        mViewModel.getLiveImageIndexForUpsert().observe(this, indexImage -> {
-            controller.setData(indexImage, mViewModel.isUpdate());
-            mImageTitle = indexImage.title;
-            if (mViewModel.isUpdate()) {
+        mViewModel.getLiveImageIndexForUpsert().observe(this, dataNisUpdate -> {
+            controller.setData(dataNisUpdate.first, dataNisUpdate.second);
+            mImageTitle = dataNisUpdate.first.title;
+            if (dataNisUpdate.second.booleanValue()) {
+                //isUpdate then show the delete button
                 fabdelButon.setVisibility(View.VISIBLE);
             }
         });

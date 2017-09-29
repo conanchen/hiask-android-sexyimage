@@ -12,6 +12,7 @@ import org.ditto.lib.dbroom.index.IndexImage;
 import org.ditto.lib.repository.util.LiveDataAndStatus;
 import org.ditto.lib.repository.util.Status;
 import org.ditto.lib.usecases.UsecaseFascade;
+import org.ditto.sexyimage.grpc.Common;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ import javax.inject.Inject;
 
 public class ImageIndicesViewModel extends ViewModel {
     @VisibleForTesting
-    final MutableLiveData<String> mutableLogin = new MutableLiveData<>();
+    final MutableLiveData<Common.ImageType> mutableImageType = new MutableLiveData<>();
     private final LiveData<Pair<List<IndexImage>, Status>> liveImageIndices;
 
 
@@ -29,11 +30,11 @@ public class ImageIndicesViewModel extends ViewModel {
     @SuppressWarnings("unchecked")
     @Inject
     public ImageIndicesViewModel() {
-        liveImageIndices = Transformations.switchMap(mutableLogin, login -> {
+        liveImageIndices = Transformations.switchMap(mutableImageType, login -> {
             if (login == null) {
                 return new LiveDataAndStatus<>(AbsentLiveData.create(), AbsentLiveData.create());
             } else {
-                return usecaseFascade.repositoryFascade.indexImageRepository.list2ImagesBy(20);
+                return usecaseFascade.repositoryFascade.indexImageRepository.list2ImagesBy(login,20);
             }
         });
     }
@@ -42,8 +43,8 @@ public class ImageIndicesViewModel extends ViewModel {
         return this.liveImageIndices;
     }
 
-    public void refresh() {
-        this.mutableLogin.setValue("GO");
+    public void refresh(Common.ImageType imageType) {
+        this.mutableImageType.setValue(imageType);
     }
 
 }

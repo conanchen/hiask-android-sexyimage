@@ -1,17 +1,17 @@
 package org.ditto.feature.image.profile;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.util.Pair;
 
 import com.google.common.base.Strings;
 
-import org.ditto.lib.AbsentLiveData;
 import org.ditto.lib.dbroom.index.IndexImage;
 import org.ditto.lib.repository.util.Status;
-import org.ditto.lib.system.di.SystemModule;
 import org.ditto.lib.usecases.UsecaseFascade;
 import org.ditto.sexyimage.grpc.Common;
 
@@ -26,11 +26,11 @@ public class ImageIndexViewModel extends ViewModel {
     @VisibleForTesting
     final MutableLiveData<Long> mutableDelete = new MutableLiveData<Long>();
 
-    private final LiveData<IndexImage> liveImageIndexForUpsert;
+    private final LiveData<Pair<IndexImage, Boolean>> liveImageIndexForUpsert;
     private final LiveData<Status> liveUpsertStatus;
     private final LiveData<Status> liveDeleteStatus;
 
-    public LiveData<IndexImage> getLiveImageIndexForUpsert() {
+    public LiveData<Pair<IndexImage, Boolean>> getLiveImageIndexForUpsert() {
         return liveImageIndexForUpsert;
     }
 
@@ -49,82 +49,69 @@ public class ImageIndexViewModel extends ViewModel {
     @Inject
     public ImageIndexViewModel() {
         liveImageIndexForUpsert = Transformations.switchMap(mutableUrl, (String url) -> {
-            LiveData<IndexImage> result = AbsentLiveData.create();
-            ;
-            if (!Strings.isNullOrEmpty(url)) {
-                result = usecaseFascade.repositoryFascade.indexImageRepository.find(url);
-            }
+            LiveData<IndexImage> liveData = usecaseFascade.repositoryFascade.indexImageRepository.find(url);
 
-            if (result == null) {
-                result = new LiveData<IndexImage>() {
-                    @Override
-                    protected void onActive() {
-                        update = false;
-                        postValue(IndexImage
-                                .builder()
-                                .setUrl("http://")
-                                .setInfoUrl("http://")
-                                .setTitle("")
-                                .setType(Common.ImageType.SECRET.name())
-                                .setCreated(System.currentTimeMillis())
-                                .setLastUpdated(System.currentTimeMillis())
-                                .setActive(false)
-                                .setToprank(false)
-                                .build()
-                        );
-                    }
-                };
-            } else {
-                update = true;
-            }
-
-            return result;
-
+            return new MediatorLiveData<Pair<IndexImage, Boolean>>() {
+                {
+                    addSource(liveData, indexImage -> {
+                        if (indexImage == null) {
+                            indexImage = IndexImage
+                                    .builder()
+                                    .setUrl(Strings.isNullOrEmpty(url) ? "http://" : url)
+                                    .setInfoUrl("http://")
+                                    .setTitle("")
+                                    .setType(Common.ImageType.SECRET.name())
+                                    .setCreated(System.currentTimeMillis())
+                                    .setLastUpdated(System.currentTimeMillis())
+                                    .setActive(false)
+                                    .setToprank(false)
+                                    .build();
+                            setValue(new Pair<>(indexImage, Boolean.FALSE));
+                        } else {
+                            setValue(new Pair<>(indexImage, Boolean.TRUE));
+                        }
+                    });
+                }
+            };
         });
         liveUpsertStatus = Transformations.switchMap(mutableUpsert, (Long time) -> {
-              return usecaseFascade.repositoryFascade.indexImageRepository.upsert(liveImageIndexForUpsert.getValue());
+            return usecaseFascade.repositoryFascade.indexImageRepository.upsert(liveImageIndexForUpsert.getValue().first);
         });
-        liveDeleteStatus = Transformations.switchMap(mutableDelete,(Long time)->{
-            return   usecaseFascade.repositoryFascade.indexImageRepository.delete(mutableUrl.getValue());
+        liveDeleteStatus = Transformations.switchMap(mutableDelete, (Long time) -> {
+            return usecaseFascade.repositoryFascade.indexImageRepository.delete(mutableUrl.getValue());
 
         });
     }
 
-    private boolean update;
-
 
     public ImageIndexViewModel setNewUrl(String newUrl) {
-        liveImageIndexForUpsert.getValue().url = newUrl;
+        liveImageIndexForUpsert.getValue().first.url = newUrl;
         return this;
     }
 
     public ImageIndexViewModel setNewInfoUrl(String newInfoUrl) {
-        liveImageIndexForUpsert.getValue().infoUrl = newInfoUrl;
+        liveImageIndexForUpsert.getValue().first.infoUrl = newInfoUrl;
         return this;
     }
 
     public ImageIndexViewModel setNewTitle(String newTitle) {
-        liveImageIndexForUpsert.getValue().title = newTitle;
+        liveImageIndexForUpsert.getValue().first.title = newTitle;
         return this;
     }
 
     public ImageIndexViewModel setNewType(Common.ImageType newType) {
-        liveImageIndexForUpsert.getValue().type = newType.name();
+        liveImageIndexForUpsert.getValue().first.type = newType.name();
         return this;
     }
 
     public ImageIndexViewModel setNewActive(boolean newActive) {
-        liveImageIndexForUpsert.getValue().active = newActive;
+        liveImageIndexForUpsert.getValue().first.active = newActive;
         return this;
     }
 
     public ImageIndexViewModel setNewToprank(boolean newToprank) {
-        liveImageIndexForUpsert.getValue().toprank = newToprank;
+        liveImageIndexForUpsert.getValue().first.toprank = newToprank;
         return this;
-    }
-
-    public boolean isUpdate() {
-        return update;
     }
 
 
@@ -137,8 +124,6 @@ public class ImageIndexViewModel extends ViewModel {
     }
 
     public void delete() {
-        if (isUpdate()) {
-            mutableDelete.setValue(System.currentTimeMillis());
-        }
+        mutableDelete.setValue(System.currentTimeMillis());
     }
 }
