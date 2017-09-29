@@ -1,3 +1,3 @@
-include ':app', ':feature-base', ':lib-usecase', ':lib-dbroom',
+include ':app', ':feature-base', ':lib-usecase', ':lib-dbroom', ':lib-system',
         ':lib-apigrpc', ':lib-repository',
         ':feature-login', ':feature-image', ':feature-visitor'

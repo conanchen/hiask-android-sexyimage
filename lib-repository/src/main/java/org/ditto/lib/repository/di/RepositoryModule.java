@@ -8,6 +8,8 @@ import org.ditto.lib.repository.IndexImageRepository;
 import org.ditto.lib.repository.IndexVisitorRepository;
 import org.ditto.lib.repository.RepositoryFascade;
 import org.ditto.lib.repository.UserRepository;
+import org.ditto.lib.system.SystemService;
+import org.ditto.lib.system.di.SystemModule;
 
 import javax.inject.Singleton;
 
@@ -20,6 +22,7 @@ import dagger.Provides;
 @Singleton
 @Module(includes = {
         RoomModule.class,
+        SystemModule.class,
         ApigrpcModule.class
 })
 public class RepositoryModule {
@@ -30,13 +33,13 @@ public class RepositoryModule {
             UserRepository userRepository,
             IndexImageRepository indexImageRepository,
             IndexVisitorRepository indexVisitorRepository,
-            ApigrpcFascade apigrpcFascade
+            SystemService systemService
     ) {
         return new RepositoryFascade(
                 userRepository,
                 indexImageRepository,
                 indexVisitorRepository,
-                apigrpcFascade);
+                systemService);
     }
 
 
@@ -63,6 +66,4 @@ public class RepositoryModule {
             RoomFascade roomFascade) {
         return new IndexVisitorRepository(roomFascade);
     }
-
-
 }

@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'me.tatarka.retrolambda'
+
 
 buildscript {
     repositories {
@@ -25,8 +25,8 @@ android {
 
     // For retrolambda
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
     configurations.all {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
@@ -40,11 +40,13 @@ android {
 
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = [moduleName: project.getName()]
+                arguments = [moduleName: project.getName(),"room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -63,28 +65,22 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    debugCompile project(path: ':lib-apigrpc', configuration: 'debug')
-    releaseCompile project(path: ':lib-apigrpc', configuration: 'release')
-
-
-    debugCompile project(path: ':lib-dbroom', configuration: 'debug')
-    releaseCompile project(path: ':lib-dbroom', configuration: 'release')
-
-    debugCompile project(path: ':lib-system', configuration: 'debug')
-    releaseCompile project(path: ':lib-system', configuration: 'release')
-
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
     compile "android.arch.lifecycle:extensions:$arch_version"
     annotationProcessor "android.arch.lifecycle:compiler:$arch_version"
-    compile "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"
+
 
     compile "com.google.dagger:dagger:$dagger_version"
+    compile "com.google.dagger:dagger-android:$dagger_version"
+    compile "com.google.dagger:dagger-android-support:$dagger_version"
+    annotationProcessor "com.google.dagger:dagger-android-processor:$dagger_version"
     annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
+    compile "com.google.guava:guava:$GOOGLE_GUAVA_VERSION";
 
-    compile "com.android.support:appcompat-v7:$ANDROID_SUPPORT_LIBS_VERSION"
     testCompile 'junit:junit:4.12'
+    compile "com.google.code.gson:gson:$GSON_VERSION"
 }

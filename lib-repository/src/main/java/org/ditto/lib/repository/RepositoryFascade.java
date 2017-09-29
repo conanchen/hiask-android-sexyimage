@@ -1,6 +1,6 @@
 package org.ditto.lib.repository;
 
-import org.ditto.lib.apigrpc.ApigrpcFascade;
+import org.ditto.lib.system.SystemService;
 
 import javax.inject.Inject;
 
@@ -15,19 +15,19 @@ public class RepositoryFascade {
 
     public IndexImageRepository indexImageRepository;
     public IndexVisitorRepository indexVisitorRepository;
-    public  UserRepository userRepository;
-    public  ApigrpcFascade apigrpcFascade;
+    public SystemService systemService;
+    public UserRepository userRepository;
 
 
     @Inject
     public RepositoryFascade(UserRepository userRepository,
                              IndexImageRepository indexImageRepository,
                              IndexVisitorRepository indexVisitorRepository,
-                             ApigrpcFascade apigrpcFascade ) {
+                             SystemService systemService) {
         this.userRepository = userRepository;
         this.indexImageRepository = indexImageRepository;
         this.indexVisitorRepository = indexVisitorRepository;
-        this.apigrpcFascade = apigrpcFascade;
+        this.systemService = systemService;
         System.out.println(strAmir);
 
     }

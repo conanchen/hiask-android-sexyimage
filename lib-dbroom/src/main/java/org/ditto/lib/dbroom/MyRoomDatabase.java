@@ -22,7 +22,7 @@ import org.ditto.lib.dbroom.user.UserCommand;
                 IndexImage.class,
                 IndexVisitor.class
         }, version = 2)
-@TypeConverters({Converters.class,  ConverterUser.class})
+@TypeConverters({Converters.class,   ConverterUser.class})
 public abstract class MyRoomDatabase extends android.arch.persistence.room.RoomDatabase {
     public abstract DaoUser daoUser();
 

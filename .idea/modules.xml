@@ -11,6 +11,7 @@
       <module fileurl="file://$PROJECT_DIR$/lib-apigrpc/lib-apigrpc.iml" filepath="$PROJECT_DIR$/lib-apigrpc/lib-apigrpc.iml" />
       <module fileurl="file://$PROJECT_DIR$/lib-dbroom/lib-dbroom.iml" filepath="$PROJECT_DIR$/lib-dbroom/lib-dbroom.iml" />
       <module fileurl="file://$PROJECT_DIR$/lib-repository/lib-repository.iml" filepath="$PROJECT_DIR$/lib-repository/lib-repository.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lib-system/lib-system.iml" filepath="$PROJECT_DIR$/lib-system/lib-system.iml" />
       <module fileurl="file://$PROJECT_DIR$/lib-usecase/lib-usecase.iml" filepath="$PROJECT_DIR$/lib-usecase/lib-usecase.iml" />
     </modules>
   </component>

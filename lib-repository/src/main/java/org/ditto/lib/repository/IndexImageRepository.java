@@ -1,7 +1,7 @@
 package org.ditto.lib.repository;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.paging.PagedList;
+import android.support.v4.util.Pair;
 import android.util.Log;
 
 import com.google.common.base.Strings;
@@ -11,6 +11,8 @@ import org.ditto.lib.apigrpc.ApigrpcFascade;
 import org.ditto.lib.apigrpc.ImageManService;
 import org.ditto.lib.dbroom.RoomFascade;
 import org.ditto.lib.dbroom.index.IndexImage;
+import org.ditto.lib.repository.util.LiveDataAndStatus;
+import org.ditto.lib.repository.util.Status;
 import org.ditto.sexyimage.grpc.Common;
 import org.ditto.sexyimage.grpc.Imageman;
 
@@ -39,37 +41,60 @@ public class IndexImageRepository {
     }
 
 
-    public LiveData<List<IndexImage>> listImagesBy(int pageSize) {
-        apigrpcFascade.getImageManService().listImages(Common.ImageType.NORMAL, 0, new ImageManService.ImageManCallback() {
+    public LiveDataAndStatus<List<IndexImage>> list2ImagesBy(int pageSize) {
+        LiveData<Status> liveStatus = new LiveData<Status>() {
             @Override
-            public void onImageReceived(Common.ImageResponse response) {
-                Log.i(TAG, String.format("onImageReceived save to database, image.url=%s\n image=[%s]", response.getUrl(), gson.toJson(response)));
-                IndexImage indexImage = IndexImage.builder()
-                        .setUrl(response.getUrl())
-                        .setInfoUrl(response.getInfoUrl())
-                        .setTitle(response.getTitle())
-                        .setDesc(response.getDesc())
-                        .setType(response.getType().name())
-                        .setLastUpdated(response.getLastUpdated())
-                        .build();
-                roomFascade.daoIndexImage.save(indexImage);
+            protected void onActive() {
+                apigrpcFascade.getImageManService().listImages(Common.ImageType.NORMAL, 0,
+                        new ImageManService.ImageManCallback() {
+                            @Override
+                            public void onImageReceived(Common.ImageResponse response) {
+                                Log.i(TAG, String.format("onImageReceived save to database, image.url=%s\n image=[%s]", response.getUrl(), gson.toJson(response)));
+                                IndexImage indexImage = IndexImage.builder()
+                                        .setUrl(response.getUrl())
+                                        .setInfoUrl(response.getInfoUrl())
+                                        .setTitle(response.getTitle())
+                                        .setDesc(response.getDesc())
+                                        .setType(response.getType().name())
+                                        .setLastUpdated(response.getLastUpdated())
+                                        .build();
+                                roomFascade.daoIndexImage.save(indexImage);
+                            }
+
+                            @Override
+                            public void onImageDeleted(Common.StatusResponse value) {
+
+                            }
+
+
+                            @Override
+                            public void onImageUpserted(Common.StatusResponse statusResponse) {
+
+                            }
+
+                            @Override
+                            public void onApiCompleted() {
+
+                            }
+
+                            @Override
+                            public void onApiError() {
+                                postValue(Status.builder().setCode(Status.Code.DISCONNECTED).setMessage("aaaaaa").build());
+                            }
+                        });
+
             }
 
             @Override
-            public void onImageDeleted(Common.StatusResponse value) {
-
+            protected void onInactive() {
+                super.onInactive();
             }
-
-
-            @Override
-            public void onImageUpserted(Common.StatusResponse statusResponse) {
-
-            }
-        });
-        //TODO: trying paging library
-//        return roomFascade.daoIndexImage.listPagingImageIndicesBy().create(0, new PagedList.Config.Builder().setPageSize(pageSize)
-//                .setPrefetchDistance(pageSize).setEnablePlaceholders(true).build());
-        return roomFascade.daoIndexImage.listImageIndicesBy(pageSize);
+        };
+        // TODO: trying paging library
+        // return roomFascade.daoIndexImage.listPagingImageIndicesBy().create(0, new PagedList.Config.Builder().setPageSize(pageSize)
+        //                .setPrefetchDistance(pageSize).setEnablePlaceholders(true).build());
+        LiveData<List<IndexImage>> liveData = roomFascade.daoIndexImage.listImageIndicesBy(pageSize);
+        return new LiveDataAndStatus<>(liveData, liveStatus);
     }
 
 
@@ -95,6 +120,16 @@ public class IndexImageRepository {
                     public void onImageDeleted(Common.StatusResponse statusResponse) {
                         Log.i(TAG, String.format("onImageDeleted(Common.StatusResponse=[%s]", gson.toJson(statusResponse)));
                     }
+
+                    @Override
+                    public void onApiCompleted() {
+
+                    }
+
+                    @Override
+                    public void onApiError() {
+                    }
+
                 });
     }
 
@@ -122,6 +157,16 @@ public class IndexImageRepository {
             @Override
             public void onImageUpserted(Common.StatusResponse statusResponse) {
                 Log.i(TAG, String.format("onImageUpserted(Common.StatusResponse=[%s]", gson.toJson(statusResponse)));
+            }
+
+            @Override
+            public void onApiCompleted() {
+
+            }
+
+            @Override
+            public void onApiError() {
+
             }
         });
     }

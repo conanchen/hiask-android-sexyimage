@@ -22,7 +22,10 @@ import org.ditto.feature.image.R2;
 import org.ditto.feature.image.di.ImageViewModelFactory;
 import org.ditto.lib.Constants;
 import org.ditto.lib.dbroom.index.IndexImage;
+import org.ditto.lib.repository.util.Status;
 import org.ditto.sexyimage.grpc.Common;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -92,11 +95,16 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
         Timber.d("calling setupController");
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(ImageIndicesViewModel.class);
 
-        viewModel.getLiveImageIndices().observe(this, messages -> {
-            for (int i = 0 ; i< messages.size();i++) {
-                Log.i(TAG, String.format("getLiveImageIndices i=%d message=[%s]", i,gson.toJson(messages.get(i))));
+        viewModel.getLiveImageIndices().observe(this, dataNstatus -> {
+            List<IndexImage> messages = dataNstatus.first;
+            Status status = dataNstatus.second;
+            if (messages != null) {
+                for (int i = 0; i < messages.size(); i++) {
+                    Log.i(TAG, String.format("getLiveImageIndices i=%d message=[%s]", i, gson.toJson(messages.get(i))));
+                }
             }
-            controller.setData(messages);
+            Log.i(TAG, String.format("getLiveImageIndices status=[%s]",   gson.toJson(status)));
+            controller.setData(messages,status);
         });
 
         viewModel.refresh();

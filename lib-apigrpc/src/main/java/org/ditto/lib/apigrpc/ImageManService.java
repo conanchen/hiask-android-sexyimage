@@ -40,6 +40,10 @@ public class ImageManService {
         void onImageUpserted(Common.StatusResponse statusResponse);
 
         void onImageDeleted(Common.StatusResponse statusResponse);
+
+        void onApiError();
+
+        void onApiCompleted();
     }
 
     private static final Gson gson = new Gson();
@@ -82,17 +86,19 @@ public class ImageManService {
                     @Override
                     public void onError(Throwable t) {
                         Log.i(TAG, String.format("onError grpc service check health\n%s", t.getMessage()));
+                        callback.onApiError();
                     }
 
                     @Override
                     public void onCompleted() {
                         Log.i(TAG, String.format("onCompleted grpc service check health\n%s", ""));
+                        callback.onApiCompleted();
                     }
                 });
 
     }
 
-    public void delete(Imageman.DeleteRequest deleteRequest, ImageManCallback callback){
+    public void delete(Imageman.DeleteRequest deleteRequest, ImageManCallback callback) {
 
         healthFutureStub.check(healthCheckRequest,
                 new StreamObserver<HealthCheckResponse>() {
@@ -145,6 +151,7 @@ public class ImageManService {
 
                                 @Override
                                 public void onError(Throwable t) {
+                                    callback.onApiError();
 
                                 }
 
@@ -159,6 +166,7 @@ public class ImageManService {
                     @Override
                     public void onError(Throwable t) {
                         Log.i(TAG, String.format("onError grpc service check health\n%s", t.getMessage()));
+                        callback.onApiError();
                     }
 
                     @Override
@@ -179,7 +187,6 @@ public class ImageManService {
         public ListImagesStreamObserver(ImageManCallback imageManCallback) {
             this.imageManCallback = imageManCallback;
         }
-
 
         @Override
         public void beforeStart(ClientCallStreamObserver requestStream) {
@@ -202,11 +209,13 @@ public class ImageManService {
         public void onError(Throwable t) {
             logger.info(String.format("%s%s", "onError isSubscribingImages.set(false)", t.getMessage()));
             t.printStackTrace();
+            imageManCallback.onApiError();
         }
 
         @Override
         public void onCompleted() {
             logger.info(String.format("%s", "onCompleted isSubscribingImages.set(false)"));
+            imageManCallback.onApiCompleted();
         }
     }
 

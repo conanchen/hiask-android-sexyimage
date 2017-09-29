@@ -4,11 +4,13 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
-import android.arch.paging.PagedList;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.util.Pair;
 
 import org.ditto.lib.AbsentLiveData;
 import org.ditto.lib.dbroom.index.IndexImage;
+import org.ditto.lib.repository.util.LiveDataAndStatus;
+import org.ditto.lib.repository.util.Status;
 import org.ditto.lib.usecases.UsecaseFascade;
 
 import java.util.List;
@@ -18,7 +20,7 @@ import javax.inject.Inject;
 public class ImageIndicesViewModel extends ViewModel {
     @VisibleForTesting
     final MutableLiveData<String> mutableLogin = new MutableLiveData<>();
-    private final LiveData<List<IndexImage>> liveImageIndices;
+    private final LiveData<Pair<List<IndexImage>, Status>> liveImageIndices;
 
 
     @Inject
@@ -29,21 +31,14 @@ public class ImageIndicesViewModel extends ViewModel {
     public ImageIndicesViewModel() {
         liveImageIndices = Transformations.switchMap(mutableLogin, login -> {
             if (login == null) {
-                return AbsentLiveData.create();
+                return new LiveDataAndStatus<>(AbsentLiveData.create(), AbsentLiveData.create());
             } else {
-                return usecaseFascade.repositoryFascade.indexImageRepository.listImagesBy(20);
+                return usecaseFascade.repositoryFascade.indexImageRepository.list2ImagesBy(20);
             }
         });
     }
 
-
-    void retry() {
-        if (this.mutableLogin.getValue() != null) {
-            this.mutableLogin.setValue(this.mutableLogin.getValue());
-        }
-    }
-
-    public LiveData<List<IndexImage>> getLiveImageIndices() {
+    public LiveData<Pair<List<IndexImage>, Status>> getLiveImageIndices() {
         return this.liveImageIndices;
     }
 

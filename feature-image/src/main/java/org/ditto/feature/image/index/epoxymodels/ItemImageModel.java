@@ -39,6 +39,7 @@ public abstract class ItemImageModel extends EpoxyModelWithHolder<ItemImageModel
     @Override
     public void bind(Holder holder) {
         holder.image.setOnClickListener(clickListener);
+        holder.button_select.setOnClickListener(clickListener);
         holder.button_select.setChecked(toprank);
         if (toprank) {
             holder.button_select.setText("已置顶");

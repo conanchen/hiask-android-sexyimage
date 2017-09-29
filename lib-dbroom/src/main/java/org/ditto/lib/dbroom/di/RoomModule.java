@@ -3,9 +3,9 @@ package org.ditto.lib.dbroom.di;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 
-import org.ditto.lib.dbroom.index.DaoIndexImage;
 import org.ditto.lib.dbroom.MyRoomDatabase;
 import org.ditto.lib.dbroom.RoomFascade;
+import org.ditto.lib.dbroom.index.DaoIndexImage;
 import org.ditto.lib.dbroom.index.DaoIndexVisitor;
 import org.ditto.lib.dbroom.user.DaoUser;
 
@@ -43,13 +43,13 @@ public class RoomModule {
 
     @Singleton
     @Provides
-    DaoIndexImage provideMessageDao(MyRoomDatabase db) {
+    DaoIndexImage provideDaoIndexImage(MyRoomDatabase db) {
         return db.daoMessageIndex();
     }
 
     @Singleton
     @Provides
-    DaoIndexVisitor provideDaoPartyIndex(MyRoomDatabase db) {
+    DaoIndexVisitor provideDaoIndexVisitor(MyRoomDatabase db) {
         return db.daoPartyIndex();
     }
 

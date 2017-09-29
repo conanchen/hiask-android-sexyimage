@@ -4,16 +4,18 @@ import android.arch.paging.PagedList;
 import android.support.v7.widget.RecyclerView.RecycledViewPool;
 
 import com.airbnb.epoxy.AutoModel;
+import com.airbnb.epoxy.Typed2EpoxyController;
 import com.airbnb.epoxy.TypedEpoxyController;
 import com.google.common.base.Strings;
 
 import org.ditto.feature.base.epoxymodels.ItemStatusNetworkModel_;
 import org.ditto.feature.image.index.epoxymodels.ItemImageModel_;
 import org.ditto.lib.dbroom.index.IndexImage;
+import org.ditto.lib.repository.util.Status;
 
 import java.util.List;
 
-public class ImageIndicesController extends TypedEpoxyController<List<IndexImage>> {
+public class ImageIndicesController extends Typed2EpoxyController<List<IndexImage>,Status> {
     public interface AdapterCallbacks {
         void onMessageItemClicked(IndexImage indexImageIssue, int position);
     }
@@ -32,7 +34,7 @@ public class ImageIndicesController extends TypedEpoxyController<List<IndexImage
     ItemStatusNetworkModel_ itemStatusNetworkModel_;
 
     @Override
-    protected void buildModels(List<IndexImage> messageIndices) {
+    protected void buildModels(List<IndexImage> messageIndices,Status status) {
         itemStatusNetworkModel_.addTo(this);
         if (messageIndices != null) {
             for (IndexImage indexImage : messageIndices) {
