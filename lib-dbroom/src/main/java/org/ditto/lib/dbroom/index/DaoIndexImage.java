@@ -20,11 +20,11 @@ public interface DaoIndexImage {
     @Insert(onConflict = REPLACE)
     Long[] saveAll(IndexImage... messageIndices);
 
-    @Query("SELECT * FROM IndexImage WHERE type = :imageType ORDER by lastUpdated DESC LIMIT :size")
-    LiveData<List<IndexImage>> listImageIndicesBy(String imageType,int size);
+    @Query("SELECT * FROM IndexImage WHERE type = :imageType ORDER by lastUpdated DESC LIMIT :pageSize")
+    LiveData<List<IndexImage>> listImageIndicesBy(String imageType,int pageSize);
 
-    @Query("SELECT * FROM IndexImage ORDER by lastUpdated DESC")
-    public abstract LivePagedListProvider<Integer , IndexImage> listPagingImageIndicesBy();
+    @Query("SELECT * FROM IndexImage WHERE type = :imageType ORDER by lastUpdated DESC")
+    public abstract LivePagedListProvider<Integer , IndexImage> listPagingImageIndicesBy(String imageType);
 
     @Query("SELECT * FROM IndexImage WHERE url = :imageUrl LIMIT 1")
     LiveData<IndexImage> find(String imageUrl);

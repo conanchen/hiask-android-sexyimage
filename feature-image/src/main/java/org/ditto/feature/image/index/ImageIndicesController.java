@@ -1,5 +1,6 @@
 package org.ditto.feature.image.index;
 
+import android.arch.paging.PagedList;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView.RecycledViewPool;
 
@@ -14,7 +15,7 @@ import org.ditto.lib.repository.util.Status;
 
 import java.util.List;
 
-public class ImageIndicesController extends TypedEpoxyController<Pair<List<IndexImage>, Status>> {
+public class ImageIndicesController extends TypedEpoxyController<Pair<PagedList<IndexImage>, Status>> {
     public interface AdapterCallbacks {
         void onMessageItemClicked(IndexImage indexImageIssue, int position);
     }
@@ -33,8 +34,8 @@ public class ImageIndicesController extends TypedEpoxyController<Pair<List<Index
     ItemStatusNetworkModel_ itemStatusNetworkModel_;
 
     @Override
-    protected void buildModels(Pair<List<IndexImage>, Status> dataNstatus) {
-        List<IndexImage> messageIndices = dataNstatus.first;
+    protected void buildModels(Pair<PagedList<IndexImage>, Status> dataNstatus) {
+        PagedList<IndexImage> messageIndices = dataNstatus.first;
         Status status = dataNstatus.second;
 
         if (status != null) {

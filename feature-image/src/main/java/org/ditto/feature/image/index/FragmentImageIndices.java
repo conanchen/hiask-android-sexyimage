@@ -28,6 +28,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import timber.log.Timber;
 
 /**
  * A fragment representing a listCommandsBy of Items.
@@ -80,7 +81,7 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
         super.onResume();
         Preconditions.checkNotNull(this.getArguments().getString(Constants.IMAGETYPE));
         Common.ImageType imageType = Common.ImageType.valueOf(this.getArguments().getString(Constants.IMAGETYPE));
-        viewModel.refresh(imageType);
+        viewModel.refresh(new ImageIndicesViewModel.Request(imageType,0));
     }
 
     @Override
@@ -127,6 +128,23 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
         recyclerView.setItemAnimator(new SampleItemAnimator());
 
         recyclerView.setAdapter(controller.getAdapter());
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    if (!recyclerView.canScrollVertically(1)) {
+                        Log.i(TAG,"callback.onScrollToBottom() +1,viewModel.loadMore()");
+                        viewModel.loadMore();
+                    }
+                    if (!recyclerView.canScrollVertically(-1)) {
+                        Log.i(TAG,"callback.onScrollToTop() -1,viewModel.refresh()");
+                        viewModel.refresh();
+                    }
+                }
+            }
+        });
 
 
         return recyclerView;

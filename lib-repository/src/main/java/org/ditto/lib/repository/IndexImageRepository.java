@@ -1,6 +1,7 @@
 package org.ditto.lib.repository;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.paging.PagedList;
 import android.util.Log;
 
 import com.google.common.base.Strings;
@@ -21,6 +22,9 @@ import java.util.Random;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
+
 /**
  * Repository that handles IndexImage objects.
  */
@@ -40,47 +44,50 @@ public class IndexImageRepository {
     }
 
 
-    public LiveDataAndStatus<List<IndexImage>> list2ImagesBy(Common.ImageType imageType,int pageSize) {
+    public LiveDataAndStatus<PagedList<IndexImage>> list2ImagesBy(Common.ImageType imageType, int page, int pageSize) {
         LiveData<Status> liveStatus = new LiveData<Status>() {
             @Override
             protected void onActive() {
-                apigrpcFascade.getImageManService().listImages(imageType, 0,
-                        new ImageManService.ImageManCallback() {
-                            @Override
-                            public void onImageReceived(Common.ImageResponse response) {
-                                Log.i(TAG, String.format("onImageReceived save to database, image.url=%s\n image=[%s]", response.getUrl(), gson.toJson(response)));
-                                IndexImage indexImage = IndexImage.builder()
-                                        .setUrl(response.getUrl())
-                                        .setInfoUrl(response.getInfoUrl())
-                                        .setTitle(response.getTitle())
-                                        .setDesc(response.getDesc())
-                                        .setType(response.getType().name())
-                                        .setLastUpdated(response.getLastUpdated())
-                                        .build();
-                                roomFascade.daoIndexImage.save(indexImage);
-                            }
+                //will refresh when load the first page
+                if(page == 0) {
+                    apigrpcFascade.getImageManService().listImages(imageType, 0,
+                            new ImageManService.ImageManCallback() {
+                                @Override
+                                public void onImageReceived(Common.ImageResponse response) {
+                                    Log.i(TAG, String.format("onImageReceived save to database, image.url=%s\n image=[%s]", response.getUrl(), gson.toJson(response)));
+                                    IndexImage indexImage = IndexImage.builder()
+                                            .setUrl(response.getUrl())
+                                            .setInfoUrl(response.getInfoUrl())
+                                            .setTitle(response.getTitle())
+                                            .setDesc(response.getDesc())
+                                            .setType(response.getType().name())
+                                            .setLastUpdated(response.getLastUpdated())
+                                            .build();
+                                    roomFascade.daoIndexImage.save(indexImage);
+                                }
 
-                            @Override
-                            public void onImageDeleted(Common.StatusResponse value) {
+                                @Override
+                                public void onImageDeleted(Common.StatusResponse value) {
 
-                            }
+                                }
 
 
-                            @Override
-                            public void onImageUpserted(Common.StatusResponse statusResponse) {
+                                @Override
+                                public void onImageUpserted(Common.StatusResponse statusResponse) {
 
-                            }
+                                }
 
-                            @Override
-                            public void onApiCompleted() {
+                                @Override
+                                public void onApiCompleted() {
 
-                            }
+                                }
 
-                            @Override
-                            public void onApiError() {
-                                postValue(Status.builder().setCode(Status.Code.DISCONNECTED).setMessage("aaaaaa").build());
-                            }
-                        });
+                                @Override
+                                public void onApiError() {
+                                    postValue(Status.builder().setCode(Status.Code.DISCONNECTED).setMessage("aaaaaa").build());
+                                }
+                            });
+                }
 
             }
 
@@ -90,9 +97,10 @@ public class IndexImageRepository {
             }
         };
         // TODO: trying paging library
-        // return roomFascade.daoIndexImage.listPagingImageIndicesBy().create(0, new PagedList.Config.Builder().setPageSize(pageSize)
-        //                .setPrefetchDistance(pageSize).setEnablePlaceholders(true).build());
-        LiveData<List<IndexImage>> liveData = roomFascade.daoIndexImage.listImageIndicesBy(imageType.name(),pageSize);
+        LiveData<PagedList<IndexImage>> liveData = roomFascade.daoIndexImage.listPagingImageIndicesBy(imageType.name())
+                .create(page * pageSize, new PagedList.Config.Builder().setPageSize(pageSize)
+                        .setPrefetchDistance(pageSize).setEnablePlaceholders(true).build());
+//        LiveData<List<IndexImage>> liveData = roomFascade.daoIndexImage.listImageIndicesBy(imageType.name(), page, pageSize);
         return new LiveDataAndStatus<>(liveData, liveStatus);
     }
 
@@ -103,7 +111,7 @@ public class IndexImageRepository {
 
 
     public LiveData<Status> delete(String url) {
-        return new LiveData<Status>(){
+        return new LiveData<Status>() {
             @Override
             protected void onActive() {
                 apigrpcFascade.getImageManService().delete(Imageman.DeleteRequest.newBuilder().setUrl(url).build(),
@@ -195,51 +203,56 @@ public class IndexImageRepository {
 
 
     public void saveSampleImageIndices() {
-        long now = System.currentTimeMillis();
-        Random r = new Random();
-        for (int i = 0; i < 50; ) {
-            roomFascade.daoIndexImage.saveAll(
-                    IndexImage.builder()
-                            .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
-                            .setType(Common.ImageType.NORMAL.name())
-                            .setTitle(i + "NORMAL 标题title消灭一切害人虫昵称")
-                            .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
-                            .setLastUpdated(now + i)
-                            .setToprank(r.nextBoolean())
-                            .build(),
-                    IndexImage.builder()
-                            .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
-                            .setType(Common.ImageType.POSTER.name())
-                            .setTitle(i + "POSTER 标题title消灭一切害人虫昵称")
-                            .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
-                            .setLastUpdated(now + i)
-                            .setToprank(r.nextBoolean())
-                            .build(),
-                    IndexImage.builder()
-                            .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
-                            .setType(Common.ImageType.SEXY.name())
-                            .setTitle(i + "SEXY 标题title消灭一切害人虫昵称")
-                            .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
-                            .setLastUpdated(now + i)
-                            .setToprank(r.nextBoolean())
-                            .build(),
-                    IndexImage.builder()
-                            .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
-                            .setType(Common.ImageType.PORN.name())
-                            .setTitle(i + "PORN 标题title消灭一切害人虫昵称")
-                            .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
-                            .setLastUpdated(now + i)
-                            .setToprank(r.nextBoolean())
-                            .build(),
-                    IndexImage.builder()
-                            .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
-                            .setType(Common.ImageType.SECRET.name())
-                            .setTitle(i + "SECRET 标题title消灭一切害人虫昵称")
-                            .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
-                            .setLastUpdated(now + i)
-                            .setToprank(r.nextBoolean())
-                            .build()
-            );
-        }
+        Observable.just(true).observeOn(Schedulers.io()).subscribeOn(Schedulers.io())
+                .subscribe(aBoolean -> {
+                    long now = System.currentTimeMillis();
+                    Random r = new Random();
+                    for (int i = 0; i < 250; ) {
+                        roomFascade.daoIndexImage.saveAll(
+                                IndexImage.builder()
+                                        .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
+                                        .setType(Common.ImageType.NORMAL.name())
+                                        .setTitle(i + "NORMAL 标题title消灭一切害人虫昵称")
+                                        .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
+                                        .setLastUpdated(now + i)
+                                        .setToprank(r.nextBoolean())
+                                        .build(),
+                                IndexImage.builder()
+                                        .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
+                                        .setType(Common.ImageType.POSTER.name())
+                                        .setTitle(i + "POSTER 标题title消灭一切害人虫昵称")
+                                        .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
+                                        .setLastUpdated(now + i)
+                                        .setToprank(r.nextBoolean())
+                                        .build(),
+                                IndexImage.builder()
+                                        .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
+                                        .setType(Common.ImageType.SEXY.name())
+                                        .setTitle(i + "SEXY 标题title消灭一切害人虫昵称")
+                                        .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
+                                        .setLastUpdated(now + i)
+                                        .setToprank(r.nextBoolean())
+                                        .build(),
+                                IndexImage.builder()
+                                        .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
+                                        .setType(Common.ImageType.PORN.name())
+                                        .setTitle(i + "PORN 标题title消灭一切害人虫昵称")
+                                        .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
+                                        .setLastUpdated(now + i)
+                                        .setToprank(r.nextBoolean())
+                                        .build(),
+                                IndexImage.builder()
+                                        .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
+                                        .setType(Common.ImageType.SECRET.name())
+                                        .setTitle(i + "SECRET 标题title消灭一切害人虫昵称")
+                                        .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
+                                        .setLastUpdated(now + i)
+                                        .setToprank(r.nextBoolean())
+                                        .build()
+                        );
+
+                    }
+                });
+
     }
 }
