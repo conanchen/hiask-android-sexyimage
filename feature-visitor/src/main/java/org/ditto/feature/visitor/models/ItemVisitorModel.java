@@ -36,9 +36,9 @@ public abstract class ItemVisitorModel extends EpoxyModelWithHolder<ItemVisitorM
 
     @Override
     public void bind(Holder holder) {
-        holder.title.setText(title);
-        holder.detail.setText(detaill);
-        holder.view.setOnClickListener(clickListener);
+//        holder.title.setText(title);
+//        holder.detail.setText(detaill);
+//        holder.view.setOnClickListener(clickListener);
     }
 
     @Override
@@ -56,9 +56,9 @@ public abstract class ItemVisitorModel extends EpoxyModelWithHolder<ItemVisitorM
 
 
     public static class Holder extends EpoxyHolder {
-        @BindView(R2.id.person_name) TextView title;
-        @BindView(R2.id.person_detail) TextView detail;
-        @BindView(R2.id.person_position) TextView require;
+        @BindView(R2.id.ipaddr) TextView title;
+        @BindView(R2.id.lastUpdated) TextView detail;
+        @BindView(R2.id.detail) TextView require;
 
         View view;
 
@@ -72,7 +72,7 @@ public abstract class ItemVisitorModel extends EpoxyModelWithHolder<ItemVisitorM
 
     @Override
     protected int getDefaultLayout() {
-        return R.layout.person_item_view;
+        return R.layout.item_visitor_model;
     }
 
 }
