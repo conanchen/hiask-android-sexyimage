@@ -1,4 +1,4 @@
-package org.ditto.lib.repository.util;
+package org.ditto.lib.repository.model;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;

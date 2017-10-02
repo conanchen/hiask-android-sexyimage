@@ -44,6 +44,8 @@ public class ImageManService {
         void onApiError();
 
         void onApiCompleted();
+
+        void onApiReady();
     }
 
     private static final Gson gson = new Gson();
@@ -72,10 +74,12 @@ public class ImageManService {
     ClientCallStreamObserver<Imageman.ListRequest> listRequestStream;
 
     public void listImages(Common.ImageType imageType, long lastUpdated, ImageManCallback callback) {
+        callback.onApiReady();
         healthFutureStub.check(healthCheckRequest,
                 new StreamObserver<HealthCheckResponse>() {
                     @Override
                     public void onNext(HealthCheckResponse value) {
+
                         if (value.getStatus() == HealthCheckResponse.ServingStatus.SERVING) {
                             imageManStub.withWaitForReady().list(Imageman.ListRequest.newBuilder()
                                             .setType(imageType).setLastUpdated(lastUpdated).build(),
@@ -99,7 +103,7 @@ public class ImageManService {
     }
 
     public void delete(Imageman.DeleteRequest deleteRequest, ImageManCallback callback) {
-
+        Log.i(TAG, String.format("before healthcheck deleteRequest=[%s]", gson.toJson(deleteRequest)));
         healthFutureStub.check(healthCheckRequest,
                 new StreamObserver<HealthCheckResponse>() {
                     @Override
@@ -107,8 +111,9 @@ public class ImageManService {
                         if (value.getStatus() == HealthCheckResponse.ServingStatus.SERVING) {
                             imageManStub.withWaitForReady().delete(deleteRequest, new StreamObserver<Common.StatusResponse>() {
                                 @Override
-                                public void onNext(Common.StatusResponse value) {
-                                    callback.onImageDeleted(value);
+                                public void onNext(Common.StatusResponse response) {
+                                    Log.i(TAG, String.format("delete callback StatusResponse=[%s]", gson.toJson(response)));
+                                    callback.onImageDeleted(response);
                                 }
 
                                 @Override
@@ -195,6 +200,7 @@ public class ImageManService {
             listRequestStream.disableAutoInboundFlowControl();
             listRequestStream.setOnReadyHandler(() -> {
                 logger.info(String.format("%s", "setOnReadyHandler isSubscribingImages.set(true)"));
+                imageManCallback.onApiReady();
             });
         }
 

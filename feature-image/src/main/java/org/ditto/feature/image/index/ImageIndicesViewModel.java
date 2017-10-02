@@ -9,14 +9,15 @@ import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 
 import org.ditto.lib.AbsentLiveData;
 import org.ditto.lib.dbroom.index.IndexImage;
-import org.ditto.lib.repository.util.LiveDataAndStatus;
-import org.ditto.lib.repository.util.Status;
+import org.ditto.lib.repository.model.ImageRequest;
+import org.ditto.lib.repository.model.LiveDataAndStatus;
+import org.ditto.lib.repository.model.Status;
 import org.ditto.lib.usecases.UsecaseFascade;
-import org.ditto.sexyimage.grpc.Common;
 
 import javax.inject.Inject;
 
@@ -25,18 +26,9 @@ public class ImageIndicesViewModel extends ViewModel {
     private final static String TAG = ImageIndicesViewModel.class.getSimpleName();
     private final static Gson gson = new Gson();
 
-    static public class Request {
-        Common.ImageType imageType;
-        int page;
-
-        public Request(Common.ImageType imageType, int page) {
-            this.imageType = imageType;
-            this.page = page;
-        }
-    }
 
     @VisibleForTesting
-    final MutableLiveData<Request> mutableRequest = new MutableLiveData<>();
+    final MutableLiveData<ImageRequest> mutableRequest = new MutableLiveData<>();
     private final LiveData<Pair<PagedList<IndexImage>, Status>> liveImageIndices;
 
 
@@ -50,7 +42,8 @@ public class ImageIndicesViewModel extends ViewModel {
             if (login == null) {
                 return new LiveDataAndStatus<>(AbsentLiveData.create(), AbsentLiveData.create());
             } else {
-                return usecaseFascade.repositoryFascade.indexImageRepository.list2ImagesBy(mutableRequest.getValue().imageType, mutableRequest.getValue().page, 25);
+                return usecaseFascade.repositoryFascade.indexImageRepository
+                        .list2ImagesBy(mutableRequest.getValue());
             }
         });
     }
@@ -59,26 +52,40 @@ public class ImageIndicesViewModel extends ViewModel {
         return this.liveImageIndices;
     }
 
-    public void refresh(Request request) {
-        this.mutableRequest.setValue(request);
+    public void refresh(ImageRequest imageRequest) {
+        Preconditions.checkNotNull(imageRequest);
+        this.mutableRequest.setValue(imageRequest);
+        Log.i(TAG, String.format("refresh.imageRequest=%s", gson.toJson(imageRequest)));
     }
 
     public void refresh() {
-        Request request = this.mutableRequest.getValue();
-        if (request != null) {
-            request.page = request.page > 0 ? request.page - 1 : 0;
-            this.mutableRequest.setValue(request);
-            Log.i(TAG,String.format("refresh.request=%s",gson.toJson(request)));
+        ImageRequest imageRequest = this.mutableRequest.getValue();
+        if (imageRequest != null) {
+            ImageRequest newImageRequest = ImageRequest.builder()
+                    .setImageType(imageRequest.imageType)
+                    .setPage(imageRequest.page > 0 ? imageRequest.page - 1 : 0)
+                    .setPageSize(imageRequest.pageSize)
+                    .setRefresh(true)
+                    .setLoadMore(false)
+                    .build();
+            this.mutableRequest.setValue(newImageRequest);
+            Log.i(TAG, String.format("refresh.imageRequest=%s", gson.toJson(newImageRequest)));
         }
     }
 
     public void loadMore() {
-        Request request = this.mutableRequest.getValue();
-        if (request != null) {
-            request.page += 1;
-            this.mutableRequest.setValue(request);
-            Log.i(TAG,String.format("loadMore.request=%s",gson.toJson(request)));
+        ImageRequest imageRequest = this.mutableRequest.getValue();
+        if (imageRequest != null) {
+            ImageRequest newImageRequest = ImageRequest.builder()
+                    .setImageType(imageRequest.imageType)
+                    .setPage(imageRequest.page + 1)
+                    .setPageSize(imageRequest.pageSize)
+                    .setRefresh(false)
+                    .setLoadMore(true)
+                    .build();
+            this.mutableRequest.setValue(newImageRequest);
+            Log.i(TAG, String.format("loadMore.imageRequest=%s", gson.toJson(newImageRequest)));
         }
-
     }
+
 }

@@ -11,6 +11,7 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.ButtonBarLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import com.alibaba.android.arouter.facade.annotation.Autowired;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.google.gson.Gson;
 
 import org.ditto.feature.base.BaseActivity;
 import org.ditto.feature.base.SampleItemAnimator;
@@ -40,6 +42,9 @@ import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOption
 
 @Route(path = "/feature_image/UpsertActivity")
 public class UpsertActivity extends BaseActivity {
+    private final static String TAG = UpsertActivity.class.getSimpleName();
+    private final static Gson gson = new Gson();
+
 
     @Autowired(name = Constants.ROUTE_IMAGEURL)
     String mRouteImageUrl;
@@ -160,10 +165,12 @@ public class UpsertActivity extends BaseActivity {
             }
         });
         mViewModel.getLiveUpsertStatus().observe(this, status -> {
+            Log.i(TAG, String.format("getLiveUpsertStatus status.code=%s \nstatus.message=%s", status.code, status.message));
             Toast.makeText(UpsertActivity.this, String.format("getLiveUpsertStatus status.code=%s \nstatus.message=%s", status.code, status.message), Toast.LENGTH_LONG).show();
         });
 
         mViewModel.getLiveDeleteStatus().observe(this, status -> {
+            Log.i(TAG, String.format("getLiveDeleteStatus status.code=%s \nstatus.message=%s", status.code, status.message));
             Toast.makeText(UpsertActivity.this, String.format("getLiveDeleteStatus status.code=%s \nstatus.message=%s", status.code, status.message), Toast.LENGTH_LONG).show();
         });
 

@@ -1,8 +1,10 @@
 package org.ditto.feature.image.index;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.arch.paging.PagedList;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -22,13 +24,14 @@ import org.ditto.feature.image.R2;
 import org.ditto.feature.image.di.ImageViewModelFactory;
 import org.ditto.lib.Constants;
 import org.ditto.lib.dbroom.index.IndexImage;
+import org.ditto.lib.repository.model.ImageRequest;
+import org.ditto.lib.repository.model.Status;
 import org.ditto.sexyimage.grpc.Common;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import timber.log.Timber;
 
 /**
  * A fragment representing a listCommandsBy of Items.
@@ -81,7 +84,7 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
         super.onResume();
         Preconditions.checkNotNull(this.getArguments().getString(Constants.IMAGETYPE));
         Common.ImageType imageType = Common.ImageType.valueOf(this.getArguments().getString(Constants.IMAGETYPE));
-        viewModel.refresh(new ImageIndicesViewModel.Request(imageType,0));
+        viewModel.refresh(ImageRequest.builder().setImageType(imageType).setPage(0).setPageSize(20).setRefresh(true).build());
     }
 
     @Override
@@ -95,12 +98,29 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(ImageIndicesViewModel.class);
 
         viewModel.getLiveImageIndices().observe(this, dataNstatus -> {
-            Log.i(TAG, String.format("ImageType=%s dataNstatus.first=%s",
+            Log.i(TAG, String.format("ImageType=%s dataNstatus.first=%s dataNstatus.second=%s",
                     this.getArguments().getString(Constants.IMAGETYPE),
-                    dataNstatus.first == null ? "no image" : dataNstatus.first.size() + " images"));
+                    dataNstatus.first == null ? "no image" : dataNstatus.first.size() + " images",
+                    gson.toJson(dataNstatus.second)));
             controller.setData(dataNstatus);
+            endTheRoundOfRefreshOrLoadMore(dataNstatus);
+
         });
 
+    }
+
+    private void endTheRoundOfRefreshOrLoadMore(Pair<PagedList<IndexImage>, Status> dataNstatus) {
+        //END this round refresh or loadMore
+        Status status = dataNstatus.second;
+        if (Status.Code.END_DISCONNECTED.equals(status.code) || Status.Code.END_ERROR.equals(status.code)
+                || Status.Code.END_SUCCESS.equals(status.code) || Status.Code.END_UNKNOWN.equals(status.code)) {
+            recyclerView.postDelayed(() -> {
+                dataNstatus.second.refresh = false;
+                dataNstatus.second.loadMore = false;
+                Log.i(TAG, String.format("end of this round refresh or loadMore status=%s", gson.toJson(status)));
+                controller.setData(dataNstatus);
+            }, 2000);
+        }
     }
 
     @Override
@@ -134,15 +154,19 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    if (!recyclerView.canScrollVertically(1)) {
-                        Log.i(TAG,"callback.onScrollToBottom() +1,viewModel.loadMore()");
+                    if (!recyclerView.canScrollVertically(-1)) {
+                        Log.i(TAG, "callback.onScrollToTop() -1,viewModel.refresh()");
+                        viewModel.refresh();
+                    } else if (!recyclerView.canScrollVertically(1)) {
+                        Log.i(TAG, "callback.onScrollToBottom() +1,viewModel.loadMore()");
                         viewModel.loadMore();
                     }
-                    if (!recyclerView.canScrollVertically(-1)) {
-                        Log.i(TAG,"callback.onScrollToTop() -1,viewModel.refresh()");
-                        viewModel.refresh();
-                    }
                 }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
             }
         });
 

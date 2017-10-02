@@ -3,19 +3,24 @@ package org.ditto.feature.image.index;
 import android.arch.paging.PagedList;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView.RecycledViewPool;
+import android.util.Log;
 
 import com.airbnb.epoxy.AutoModel;
 import com.airbnb.epoxy.TypedEpoxyController;
 import com.google.common.base.Strings;
+import com.google.gson.Gson;
 
+import org.ditto.feature.base.epoxymodels.ItemLoadmoreFooterModel_;
+import org.ditto.feature.base.epoxymodels.ItemRefreshHeaderModel_;
 import org.ditto.feature.base.epoxymodels.ItemStatusNetworkModel_;
 import org.ditto.feature.image.index.epoxymodels.ItemImageModel_;
 import org.ditto.lib.dbroom.index.IndexImage;
-import org.ditto.lib.repository.util.Status;
-
-import java.util.List;
+import org.ditto.lib.repository.model.Status;
 
 public class ImageIndicesController extends TypedEpoxyController<Pair<PagedList<IndexImage>, Status>> {
+    private final static String TAG = ImageIndicesController.class.getSimpleName();
+    private final static Gson gson = new Gson();
+
     public interface AdapterCallbacks {
         void onMessageItemClicked(IndexImage indexImageIssue, int position);
     }
@@ -31,18 +36,27 @@ public class ImageIndicesController extends TypedEpoxyController<Pair<PagedList<
     }
 
     @AutoModel
+    ItemRefreshHeaderModel_ headerModel_;
+
+    @AutoModel
     ItemStatusNetworkModel_ itemStatusNetworkModel_;
+
+    @AutoModel
+    ItemLoadmoreFooterModel_ footerModel_;
 
     @Override
     protected void buildModels(Pair<PagedList<IndexImage>, Status> dataNstatus) {
+
         PagedList<IndexImage> messageIndices = dataNstatus.first;
         Status status = dataNstatus.second;
 
-        if (status != null) {
-            itemStatusNetworkModel_.addTo(this);
-        }
+        Log.i(TAG, String.format(" status!=null && status.refresh = %b", status != null && status.refresh));
+        headerModel_.status(status).addIf(status != null && status.refresh, this);
+
+        itemStatusNetworkModel_.addIf(status != null && Status.Code.END_ERROR.equals(status.code), this);
 
         if (messageIndices != null) {
+            Log.i(TAG, String.format(" build %d IndexImage", messageIndices.size()));
             for (IndexImage indexImage : messageIndices) {
                 if (indexImage != null && !Strings.isNullOrEmpty(indexImage.url)) {
                     add(new ItemImageModel_()
@@ -60,6 +74,8 @@ public class ImageIndicesController extends TypedEpoxyController<Pair<PagedList<
                 }
             }
         }
+
+        footerModel_.status(status).addIf(status != null && status.loadMore, this);
     }
 
     @Override
