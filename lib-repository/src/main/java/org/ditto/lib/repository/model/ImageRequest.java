@@ -4,6 +4,7 @@ import org.ditto.sexyimage.grpc.Common;
 
 public class ImageRequest {
     public Common.ImageType imageType;
+    public long lastUpdated;
     public int page;
     public int pageSize;
     public boolean refresh;
@@ -12,8 +13,10 @@ public class ImageRequest {
     public ImageRequest() {
     }
 
-    private ImageRequest(Common.ImageType imageType, int page, int pageSize, boolean refresh, boolean loadMore) {
+
+    public ImageRequest(Common.ImageType imageType, long lastUpdated, int page, int pageSize, boolean refresh, boolean loadMore) {
         this.imageType = imageType;
+        this.lastUpdated = lastUpdated;
         this.page = page;
         this.pageSize = pageSize;
         this.refresh = refresh;
@@ -26,6 +29,7 @@ public class ImageRequest {
 
     public static final class Builder {
         private Common.ImageType imageType;
+        private long lastUpdated;
         private int page;
         private int pageSize;
         private boolean refresh;
@@ -46,7 +50,7 @@ public class ImageRequest {
                 missing += " page";
             }
 
-            if (pageSize < 10) {
+            if (pageSize < 5) {
                 missing += " pageSize";
             }
 
@@ -54,11 +58,16 @@ public class ImageRequest {
                 throw new IllegalStateException("Missing required properties:" + missing);
             }
 
-            return new ImageRequest(imageType, page, pageSize, refresh, loadMore);
+            return new ImageRequest(imageType, lastUpdated,page, pageSize, refresh, loadMore);
         }
 
         public Builder setImageType(Common.ImageType imageType) {
             this.imageType = imageType;
+            return this;
+        }
+
+        public Builder setLastUpdated(long lastUpdated) {
+            this.lastUpdated = lastUpdated;
             return this;
         }
 

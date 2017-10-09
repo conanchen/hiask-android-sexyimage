@@ -34,6 +34,10 @@ public interface DaoIndexImage {
     @Query("SELECT * FROM IndexImage WHERE url = :imageUrl LIMIT 1")
     Flowable<IndexImage> findFlowable(String imageUrl);
 
+    @Query("SELECT * FROM IndexImage WHERE type = :imageType ORDER BY lastUpdated DESC LIMIT 1")
+    IndexImage findLatestIndexImage(String imageType);
+
     @Delete
     void delete(IndexImage indexImage);
+
 }

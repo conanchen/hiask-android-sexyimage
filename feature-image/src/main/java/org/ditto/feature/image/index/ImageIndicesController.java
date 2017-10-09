@@ -62,6 +62,7 @@ public class ImageIndicesController extends TypedEpoxyController<Pair<PagedList<
                     add(new ItemImageModel_()
                             .id(indexImage.url)
                             .url(indexImage.url)
+                            .title(indexImage.title)
                             .toprank(indexImage.toprank)
                             .clickListener((model, parentView, clickedView, position) -> {
                                 // A model click listener is used instead of a normal click listener so that we can get

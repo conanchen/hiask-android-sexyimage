@@ -8,7 +8,6 @@ apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.jakewharton.butterknife'
 
 repositories {
-    maven { url 'https://maven.fabric.io/public' }
     maven { url "https://dl.bintray.com/thelasterstar/maven/" }
 }
 
@@ -24,7 +23,6 @@ buildscript {
 
     dependencies {
         classpath 'me.tatarka:gradle-retrolambda:3.5.0'
-        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
 

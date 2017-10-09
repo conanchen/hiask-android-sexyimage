@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 
 import com.airbnb.epoxy.EpoxyAttribute;
@@ -31,6 +32,9 @@ public abstract class ItemImageModel extends EpoxyModelWithHolder<ItemImageModel
     String url;
 
     @EpoxyAttribute
+    String title;
+
+    @EpoxyAttribute
     Boolean toprank;
 
     @EpoxyAttribute(DoNotHash)
@@ -39,6 +43,8 @@ public abstract class ItemImageModel extends EpoxyModelWithHolder<ItemImageModel
     @Override
     public void bind(Holder holder) {
         holder.image.setOnClickListener(clickListener);
+        holder.title.setOnClickListener(clickListener);
+        holder.title.setText(title);
         holder.button_select.setOnClickListener(clickListener);
         holder.button_select.setChecked(toprank);
         if (toprank) {
@@ -68,6 +74,9 @@ public abstract class ItemImageModel extends EpoxyModelWithHolder<ItemImageModel
     public static class Holder extends EpoxyHolder {
         @BindView(R2.id.image)
         AppCompatImageView image;
+
+        @BindView(R2.id.title)
+        AppCompatTextView title;
 
         @BindView(R2.id.button_select)
         AppCompatCheckBox button_select;

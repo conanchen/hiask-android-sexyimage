@@ -73,7 +73,7 @@ public class ImageManService {
 
     ClientCallStreamObserver<Imageman.ListRequest> listRequestStream;
 
-    public void listImages(Common.ImageType imageType, long lastUpdated, ImageManCallback callback) {
+    public void listImages(Imageman.ListRequest listRequest, ImageManCallback callback) {
         callback.onApiReady();
         healthFutureStub.check(healthCheckRequest,
                 new StreamObserver<HealthCheckResponse>() {
@@ -81,8 +81,8 @@ public class ImageManService {
                     public void onNext(HealthCheckResponse value) {
 
                         if (value.getStatus() == HealthCheckResponse.ServingStatus.SERVING) {
-                            imageManStub.withWaitForReady().list(Imageman.ListRequest.newBuilder()
-                                            .setType(imageType).setLastUpdated(lastUpdated).build(),
+                            Log.i(TAG, String.format("imageManStub.withWaitForReady().list() listRequest = [%s]", gson.toJson(listRequest)));
+                            imageManStub.withWaitForReady().list(listRequest,
                                     new ListImagesStreamObserver(callback));
                         }
                     }

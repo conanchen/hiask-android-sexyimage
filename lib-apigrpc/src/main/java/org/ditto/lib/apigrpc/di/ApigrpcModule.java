@@ -27,7 +27,7 @@ public class ApigrpcModule {
         final ManagedChannel channel = OkHttpChannelBuilder
                 .forAddress(BuildConfig.GRPC_SERVER_HOST, BuildConfig.GRPC_SERVER_PORT)
                 .usePlaintext(true)
-                .keepAliveTime(60, TimeUnit.SECONDS)
+//                .keepAliveTime(60, TimeUnit.SECONDS)
                 .build();
         return channel;
     }

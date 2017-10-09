@@ -98,11 +98,12 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(ImageIndicesViewModel.class);
 
         viewModel.getLiveImageIndices().observe(this, dataNstatus -> {
-            Log.i(TAG, String.format("ImageType=%s dataNstatus.first=%s dataNstatus.second=%s",
+            Log.i(TAG, String.format("Scrolling ImageType=%s dataNstatus.first=%s dataNstatus.second=%s",
                     this.getArguments().getString(Constants.IMAGETYPE),
                     dataNstatus.first == null ? "no image" : dataNstatus.first.size() + " images",
                     gson.toJson(dataNstatus.second)));
             controller.setData(dataNstatus);
+
             endTheRoundOfRefreshOrLoadMore(dataNstatus);
 
         });
@@ -112,12 +113,12 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
     private void endTheRoundOfRefreshOrLoadMore(Pair<PagedList<IndexImage>, Status> dataNstatus) {
         //END this round refresh or loadMore
         Status status = dataNstatus.second;
-        if (Status.Code.END_DISCONNECTED.equals(status.code) || Status.Code.END_ERROR.equals(status.code)
+        if (status == null || Status.Code.END_DISCONNECTED.equals(status.code) || Status.Code.END_ERROR.equals(status.code)
                 || Status.Code.END_SUCCESS.equals(status.code) || Status.Code.END_UNKNOWN.equals(status.code)) {
             recyclerView.postDelayed(() -> {
                 dataNstatus.second.refresh = false;
                 dataNstatus.second.loadMore = false;
-                Log.i(TAG, String.format("end of this round refresh or loadMore status=%s", gson.toJson(status)));
+                Log.i(TAG, String.format("Scrolling end of this round refresh or loadMore status=%s", gson.toJson(status)));
                 controller.setData(dataNstatus);
             }, 2000);
         }
@@ -166,7 +167,14 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
 
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
+//                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0) {
+                    // Scrolling up
+                    Log.i(TAG, String.format("Scrolling up, dx=%d,dy=%d should be going to load more", dx, dy));
+                } else if (dy < 0) {
+                    // Scrolling down
+                    Log.i(TAG, String.format("Scrolling down, dx=%d,dy=%d should be going to refresh", dx, dy));
+                }
             }
         });
 

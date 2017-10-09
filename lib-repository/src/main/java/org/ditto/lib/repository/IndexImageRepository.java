@@ -11,8 +11,8 @@ import org.ditto.lib.apigrpc.ApigrpcFascade;
 import org.ditto.lib.apigrpc.ImageManService;
 import org.ditto.lib.dbroom.RoomFascade;
 import org.ditto.lib.dbroom.index.IndexImage;
-import org.ditto.lib.repository.model.LiveDataAndStatus;
 import org.ditto.lib.repository.model.ImageRequest;
+import org.ditto.lib.repository.model.LiveDataAndStatus;
 import org.ditto.lib.repository.model.Status;
 import org.ditto.sexyimage.grpc.Common;
 import org.ditto.sexyimage.grpc.Imageman;
@@ -22,6 +22,7 @@ import java.util.Random;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 
@@ -44,18 +45,24 @@ public class IndexImageRepository {
     }
 
 
-    public LiveDataAndStatus<PagedList<IndexImage>> list2ImagesBy(ImageRequest imageRequest) {
+    public LiveDataAndStatus<PagedList<IndexImage>> listPagedImagesBy(ImageRequest imageRequest) {
         LiveData<Status> liveStatus = new LiveData<Status>() {
             @Override
             protected void onActive() {
                 //will refresh when load the first page
                 if (imageRequest.refresh) {
-                    postValue(Status.builder().setCode(Status.Code.START).setRefresh(true).build());
-                    apigrpcFascade.getImageManService().listImages(imageRequest.imageType, 0,
+                    Status status = Status.builder().setCode(Status.Code.START).setRefresh(true).build();
+                    postValue(status);
+                    Log.i(TAG, String.format("restart  postValue(status) status = [%s]", gson.toJson(status)));
+                    Imageman.ListRequest listRequest = Imageman.ListRequest.newBuilder()
+                            .setType(imageRequest.imageType).setLastUpdated(imageRequest.lastUpdated).build();
+
+                    apigrpcFascade.getImageManService().listImages(listRequest,
                             new ImageManService.ImageManCallback() {
                                 @Override
                                 public void onApiReady() {
                                     postValue(Status.builder().setCode(Status.Code.LOADING).setRefresh(true).build());
+                                    Log.i(TAG, String.format("onApiReady  postValue(status) status = [%s]", gson.toJson(status)));
                                 }
 
                                 @Override
@@ -87,16 +94,22 @@ public class IndexImageRepository {
 
                                 @Override
                                 public void onApiCompleted() {
-                                    postValue(Status.builder().setCode(Status.Code.END_SUCCESS).setRefresh(true).build());
+                                    Status status = Status.builder().setCode(Status.Code.END_SUCCESS).setRefresh(true).build();
+                                    postValue(status);
+                                    Log.i(TAG, String.format("onApiCompleted  postValue(status) status = [%s]", gson.toJson(status)));
                                 }
 
                                 @Override
                                 public void onApiError() {
-                                    postValue(Status.builder().setCode(Status.Code.END_DISCONNECTED).setRefresh(true).setMessage("aaaaaa").build());
+                                    Status status = Status.builder().setCode(Status.Code.END_DISCONNECTED).setRefresh(true).setMessage("aaaaaa").build();
+                                    postValue(status);
+                                    Log.i(TAG, String.format("onApiCompleted  postValue(status) status = [%s]", gson.toJson(status)));
                                 }
                             });
-                } else {
-                    postValue(Status.builder().setCode(Status.Code.LOADING).setLoadMore(true).build());
+                } else if (imageRequest.loadMore) {
+                    Status status = Status.builder().setCode(Status.Code.LOADING).setLoadMore(true).build();
+                    postValue(status);
+                    Log.i(TAG, String.format("loadMore start  postValue(status) status = [%s]", gson.toJson(status)));
                 }
 
             }
@@ -106,7 +119,7 @@ public class IndexImageRepository {
                 super.onInactive();
             }
         };
-        // TODO: trying paging library
+
         LiveData<PagedList<IndexImage>> liveData = roomFascade.daoIndexImage.listPagingImageIndicesBy(imageRequest.imageType.name())
                 .create(imageRequest.page * imageRequest.pageSize,
                         new PagedList.Config
@@ -115,8 +128,11 @@ public class IndexImageRepository {
                                 .setPrefetchDistance(imageRequest.pageSize)
                                 .setEnablePlaceholders(true)
                                 .build());
-//        LiveData<List<IndexImage>> liveData = roomFascade.daoIndexImage.listImageIndicesBy(imageType.name(), page, pageSize);
         return new LiveDataAndStatus<>(liveData, liveStatus);
+    }
+
+    public IndexImage findMaxLastUpdated(Common.ImageType imageType) {
+        return  roomFascade.daoIndexImage.findLatestIndexImage(imageType.name());
     }
 
 
@@ -129,7 +145,7 @@ public class IndexImageRepository {
         return new LiveData<Status>() {
             @Override
             protected void onActive() {
-                Log.i(TAG,String.format("delete %s",url));
+                Log.i(TAG, String.format("delete %s", url));
                 apigrpcFascade.getImageManService().delete(Imageman.DeleteRequest.newBuilder().setUrl(url).build(),
                         new ImageManService.ImageManCallback() {
                             @Override
@@ -154,10 +170,10 @@ public class IndexImageRepository {
                                 roomFascade.daoIndexImage.findFlowable(url)
                                         .subscribeOn(Schedulers.io())
                                         .observeOn(Schedulers.io())
-                                .subscribe(indexImage -> {
-                                    Log.i(TAG,String.format("remote delete return , then delete local IndexImage url=%s",url));
-                                    roomFascade.daoIndexImage.delete(indexImage);
-                                })
+                                        .subscribe(indexImage -> {
+                                            Log.i(TAG, String.format("remote delete return , then delete local IndexImage url=%s", url));
+                                            roomFascade.daoIndexImage.delete(indexImage);
+                                        })
                                 ;
                                 Log.i(TAG, String.format("onImageDeleted(Common.StatusResponse=[%s]", gson.toJson(statusResponse)));
                                 postValue(Status.builder().setCode(Status.Code.LOADING).setMessage(gson.toJson(statusResponse)).build());
@@ -241,47 +257,47 @@ public class IndexImageRepository {
     public void saveSampleImageIndices() {
         Observable.just(true).observeOn(Schedulers.io()).subscribeOn(Schedulers.io())
                 .subscribe(aBoolean -> {
-                    long now = System.currentTimeMillis();
+                    long now = 0l;
                     Random r = new Random();
                     for (int i = 0; i < 15; ) {
                         roomFascade.daoIndexImage.saveAll(
                                 IndexImage.builder()
                                         .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
                                         .setType(Common.ImageType.NORMAL.name())
-                                        .setTitle(i + "NORMAL 标题title消灭一切害人虫昵称")
-                                        .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
+                                        .setTitle(i + " NORMAL 标题title消灭一切害人虫昵称")
+                                        .setDesc(i + " 详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
                                         .setLastUpdated(now + i)
                                         .setToprank(r.nextBoolean())
                                         .build(),
                                 IndexImage.builder()
                                         .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
                                         .setType(Common.ImageType.POSTER.name())
-                                        .setTitle(i + "POSTER 标题title消灭一切害人虫昵称")
-                                        .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
+                                        .setTitle(i + " POSTER 标题title消灭一切害人虫昵称")
+                                        .setDesc(i + " 详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
                                         .setLastUpdated(now + i)
                                         .setToprank(r.nextBoolean())
                                         .build(),
                                 IndexImage.builder()
                                         .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
                                         .setType(Common.ImageType.SEXY.name())
-                                        .setTitle(i + "SEXY 标题title消灭一切害人虫昵称")
-                                        .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
+                                        .setTitle(i + " SEXY 标题title消灭一切害人虫昵称")
+                                        .setDesc(i + " 详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
                                         .setLastUpdated(now + i)
                                         .setToprank(r.nextBoolean())
                                         .build(),
                                 IndexImage.builder()
                                         .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
                                         .setType(Common.ImageType.PORN.name())
-                                        .setTitle(i + "PORN 标题title消灭一切害人虫昵称")
-                                        .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
+                                        .setTitle(i + " PORN 标题title消灭一切害人虫昵称")
+                                        .setDesc(i + " 详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
                                         .setLastUpdated(now + i)
                                         .setToprank(r.nextBoolean())
                                         .build(),
                                 IndexImage.builder()
                                         .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
                                         .setType(Common.ImageType.SECRET.name())
-                                        .setTitle(i + "SECRET 标题title消灭一切害人虫昵称")
-                                        .setDesc(i + "详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
+                                        .setTitle(i + " SECRET 标题title消灭一切害人虫昵称")
+                                        .setDesc(i + " 详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
                                         .setLastUpdated(now + i)
                                         .setToprank(r.nextBoolean())
                                         .build()
