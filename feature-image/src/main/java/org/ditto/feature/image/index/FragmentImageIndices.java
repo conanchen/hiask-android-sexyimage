@@ -107,20 +107,20 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
             endTheRoundOfRefreshOrLoadMore(dataNstatus);
 
         });
-
     }
 
     private void endTheRoundOfRefreshOrLoadMore(Pair<PagedList<IndexImage>, Status> dataNstatus) {
         //END this round refresh or loadMore
-        Status status = dataNstatus.second;
-        if (Status.Code.END_DISCONNECTED.equals(status.code) || Status.Code.END_ERROR.equals(status.code)
-                || Status.Code.END_SUCCESS.equals(status.code) || Status.Code.END_UNKNOWN.equals(status.code)) {
+        if (dataNstatus.second == null || Status.Code.END_DISCONNECTED.equals(dataNstatus.second.code)
+                || Status.Code.END_ERROR.equals(dataNstatus.second.code)
+                || Status.Code.END_SUCCESS.equals(dataNstatus.second.code)
+                || Status.Code.END_UNKNOWN.equals(dataNstatus.second.code)) {
             recyclerView.postDelayed(() -> {
-                if(dataNstatus.second!=null) {
+                if (dataNstatus.second != null) {
                     dataNstatus.second.refresh = false;
                     dataNstatus.second.loadMore = false;
                 }
-                Log.i(TAG, String.format("Scrolling end of this round refresh or loadMore status=%s", gson.toJson(status)));
+                Log.i(TAG, String.format("Scrolling end of this round refresh or loadMore status=%s", gson.toJson(dataNstatus.second)));
                 controller.setData(dataNstatus);
             }, 2000);
         }
