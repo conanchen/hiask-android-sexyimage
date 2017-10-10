@@ -53,7 +53,7 @@ public class ImageManService {
     private static final Logger logger = Logger.getLogger(ImageManService.class.getName());
     private final ManagedChannel channel;
     private final ImageManGrpc.ImageManStub imageManStub;
-    private final HealthGrpc.HealthStub healthFutureStub;
+    private final HealthGrpc.HealthStub healthStub;
     final HealthCheckRequest healthCheckRequest = HealthCheckRequest
             .newBuilder()
             .setService(ImageManGrpc.getServiceDescriptor().getName())
@@ -63,7 +63,7 @@ public class ImageManService {
     public ImageManService(final ManagedChannel channel) {
         this.channel = channel;
         imageManStub = ImageManGrpc.newStub(channel);
-        healthFutureStub = HealthGrpc.newStub(channel);
+        healthStub = HealthGrpc.newStub(channel);
     }
 
 
@@ -75,7 +75,7 @@ public class ImageManService {
 
     public void listImages(Imageman.ListRequest listRequest, ImageManCallback callback) {
         callback.onApiReady();
-        healthFutureStub.check(healthCheckRequest,
+        healthStub.check(healthCheckRequest,
                 new StreamObserver<HealthCheckResponse>() {
                     @Override
                     public void onNext(HealthCheckResponse value) {
@@ -104,7 +104,7 @@ public class ImageManService {
 
     public void delete(Imageman.DeleteRequest deleteRequest, ImageManCallback callback) {
         Log.i(TAG, String.format("before healthcheck deleteRequest=[%s]", gson.toJson(deleteRequest)));
-        healthFutureStub.check(healthCheckRequest,
+        healthStub.check(healthCheckRequest,
                 new StreamObserver<HealthCheckResponse>() {
                     @Override
                     public void onNext(HealthCheckResponse value) {
@@ -144,7 +144,7 @@ public class ImageManService {
     }
 
     public void upsert(Imageman.UpsertRequest upsertRequest, ImageManCallback callback) {
-        healthFutureStub.check(healthCheckRequest,
+        healthStub.check(healthCheckRequest,
                 new StreamObserver<HealthCheckResponse>() {
                     @Override
                     public void onNext(HealthCheckResponse value) {

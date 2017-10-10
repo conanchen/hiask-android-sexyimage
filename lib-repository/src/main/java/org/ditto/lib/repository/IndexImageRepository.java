@@ -110,8 +110,10 @@ public class IndexImageRepository {
                     Status status = Status.builder().setCode(Status.Code.LOADING).setLoadMore(true).build();
                     postValue(status);
                     Log.i(TAG, String.format("loadMore start  postValue(status) status = [%s]", gson.toJson(status)));
+                }else{
+                    Status status = Status.builder().setCode(Status.Code.END_SUCCESS).setRefresh(false).setLoadMore(false).build();
+                    postValue(status);
                 }
-
             }
 
             @Override

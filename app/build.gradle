@@ -2,22 +2,16 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'me.tatarka.retrolambda'
 
-repositories {
-    maven { url "http://maven.aliyun.com/nexus/content/repositories/central/" }
-    maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
-    maven { url 'https://maven.fabric.io/public' }
-    maven { url "https://dl.bintray.com/thelasterstar/maven/" }
-    maven { url "https://jitpack.io" }
-}
-
-
 buildscript {
     repositories {
         mavenCentral()
         jcenter()
-        maven { url 'https://maven.google.com' }
+        maven { url "http://maven.aliyun.com/nexus/content/repositories/central/" }
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+        maven { url 'https://dl.google.com/dl/android/maven2' }
         maven { url 'https://maven.fabric.io/public' }
         maven { url "https://dl.bintray.com/thelasterstar/maven/" }
+        maven { url "https://jitpack.io" }
     }
 
     dependencies {

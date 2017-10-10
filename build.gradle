@@ -5,7 +5,7 @@ buildscript {
     
     repositories {
         jcenter()
-        maven {url 'https://maven.google.com'}
+        maven {url 'https://dl.google.com/dl/android/maven2'}
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
@@ -20,9 +20,10 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
+        maven { url "https://dl.bintray.com/thelasterstar/maven/" }
         maven { url "http://maven.aliyun.com/nexus/content/repositories/central/" }
         maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
-        maven { url 'https://maven.google.com' }
+        maven { url 'https://dl.google.com/dl/android/maven2' }
     }
 }
 subprojects { project ->
