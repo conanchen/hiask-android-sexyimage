@@ -14,7 +14,7 @@ import com.google.common.base.Strings;
 import org.ditto.lib.dbroom.index.IndexImage;
 import org.ditto.lib.repository.model.Status;
 import org.ditto.lib.usecases.UsecaseFascade;
-import org.ditto.sexyimage.grpc.Common;
+import org.ditto.sexyimage.common.grpc.ImageType;
 
 import javax.inject.Inject;
 
@@ -61,7 +61,7 @@ public class ImageIndexViewModel extends ViewModel {
                                     .setUrl(Strings.isNullOrEmpty(url) ? "http://" : url)
                                     .setInfoUrl("http://")
                                     .setTitle("")
-                                    .setType(Common.ImageType.SECRET.name())
+                                    .setType(ImageType.SECRET.name())
                                     .setCreated(System.currentTimeMillis())
                                     .setLastUpdated(System.currentTimeMillis())
                                     .setActive(false)
@@ -100,7 +100,7 @@ public class ImageIndexViewModel extends ViewModel {
         return this;
     }
 
-    public ImageIndexViewModel setNewType(Common.ImageType newType) {
+    public ImageIndexViewModel setNewType(ImageType newType) {
         liveImageIndexForUpsert.getValue().first.type = newType.name();
         return this;
     }

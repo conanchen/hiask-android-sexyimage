@@ -1,15 +1,4 @@
 buildscript {
-    dependencies {
-        classpath "com.jakewharton:butterknife-gradle-plugin:$BUTTERKNIFE_VERSION"
-    }
-}
-apply plugin: 'com.android.library'
-apply plugin: 'com.google.protobuf'
-apply plugin: 'me.tatarka.retrolambda'
-apply plugin: 'com.jakewharton.butterknife'
-
-
-buildscript {
     repositories {
         mavenCentral()
         jcenter()
@@ -19,7 +8,16 @@ buildscript {
 
     dependencies {
         classpath 'me.tatarka:gradle-retrolambda:3.5.0'
+        classpath "com.jakewharton:butterknife-gradle-plugin:$BUTTERKNIFE_VERSION"
     }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'com.jakewharton.butterknife'
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 android {
@@ -35,7 +33,7 @@ android {
     // For retrolambda
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_7
     }
     configurations.all {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
@@ -79,35 +77,11 @@ android {
     }
 }
 
-
-protobuf {
-    protoc {
-        artifact = 'com.google.protobuf:protoc:3.0.0'
-    }
-    plugins {
-        javalite {
-            artifact = "com.google.protobuf:protoc-gen-javalite:3.0.0"
-        }
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:$GRPC_VERSION" // CURRENT_GRPC_VERSION
-        }
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.plugins {
-                javalite {}
-                grpc {
-                    // Options added to --grpc_out
-                    option 'lite'
-                }
-            }
-        }
-    }
-}
-
-
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    compile ("com.github.conanchen.hiask-api-sexyimage:grpc-manage-javalite:master-SNAPSHOT")
+
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })

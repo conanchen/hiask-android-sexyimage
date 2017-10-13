@@ -11,7 +11,7 @@ import com.airbnb.epoxy.EpoxyModelWithHolder;
 import org.ditto.feature.image.R;
 import org.ditto.feature.image.R2;
 import org.ditto.feature.image.profile.ImageProfileEditController;
-import org.ditto.sexyimage.grpc.Common;
+import org.ditto.sexyimage.common.grpc.ImageType;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,36 +34,36 @@ public abstract class ImageTypeEditModel extends EpoxyModelWithHolder<ImageTypeE
 
     @Override
     public void bind(Holder holder) {
-        holder.radioNormal.setChecked(Common.ImageType.NORMAL.name().equals(type));
-        holder.radioPoster.setChecked(Common.ImageType.POSTER.name().equals(type));
-        holder.radioSexy.setChecked(Common.ImageType.SEXY.name().equals(type));
-        holder.radioPorn.setChecked(Common.ImageType.PORN.name().equals(type));
-        holder.radioSecret.setChecked(Common.ImageType.SECRET.name().equals(type));
+        holder.radioNormal.setChecked(ImageType.NORMAL.name().equals(type));
+        holder.radioPoster.setChecked(ImageType.POSTER.name().equals(type));
+        holder.radioSexy.setChecked(ImageType.SEXY.name().equals(type));
+        holder.radioPorn.setChecked(ImageType.PORN.name().equals(type));
+        holder.radioSecret.setChecked(ImageType.SECRET.name().equals(type));
 
         holder.radioNormal.setOnClickListener(v -> {
             holder.clearRadioButtons();
             holder.radioNormal.setChecked(true);
-            callbacks.onTypeChanged(Common.ImageType.NORMAL);
+            callbacks.onTypeChanged(ImageType.NORMAL);
         });
         holder.radioPoster.setOnClickListener(v -> {
             holder.clearRadioButtons();
             holder.radioPoster.setChecked(true);
-            callbacks.onTypeChanged(Common.ImageType.POSTER);
+            callbacks.onTypeChanged(ImageType.POSTER);
         });
         holder.radioSexy.setOnClickListener(v -> {
             holder.clearRadioButtons();
             holder.radioSexy.setChecked(true);
-            callbacks.onTypeChanged(Common.ImageType.SEXY);
+            callbacks.onTypeChanged(ImageType.SEXY);
         });
         holder.radioPorn.setOnClickListener(v -> {
             holder.clearRadioButtons();
             holder.radioPorn.setChecked(true);
-            callbacks.onTypeChanged(Common.ImageType.PORN);
+            callbacks.onTypeChanged(ImageType.PORN);
         });
         holder.radioSecret.setOnClickListener(v -> {
             holder.clearRadioButtons();
             holder.radioSecret.setChecked(true);
-            callbacks.onTypeChanged(Common.ImageType.SECRET);
+            callbacks.onTypeChanged(ImageType.SECRET);
         });
     }
 

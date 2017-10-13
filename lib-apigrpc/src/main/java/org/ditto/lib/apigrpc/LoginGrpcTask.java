@@ -3,9 +3,10 @@ package org.ditto.lib.apigrpc;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import org.ditto.api.grpc.LoginRequest;
-import org.ditto.api.grpc.LoginResponse;
-import org.ditto.api.grpc.LoginServiceGrpc;
+
+import org.ditto.signin.grpc.LoginRequest;
+import org.ditto.signin.grpc.LoginResponse;
+import org.ditto.signin.grpc.LoginServiceGrpc;
 
 import java.util.concurrent.TimeUnit;
 

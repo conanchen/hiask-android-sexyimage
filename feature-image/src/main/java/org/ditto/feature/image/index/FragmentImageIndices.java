@@ -26,7 +26,7 @@ import org.ditto.lib.Constants;
 import org.ditto.lib.dbroom.index.IndexImage;
 import org.ditto.lib.repository.model.ImageRequest;
 import org.ditto.lib.repository.model.Status;
-import org.ditto.sexyimage.grpc.Common;
+import org.ditto.sexyimage.common.grpc.ImageType;
 
 import javax.inject.Inject;
 
@@ -62,7 +62,7 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
     }
 
 
-    public static FragmentImageIndices create(String title, Common.ImageType type) {
+    public static FragmentImageIndices create(String title, ImageType type) {
         Preconditions.checkNotNull(title);
         FragmentImageIndices fragment = new FragmentImageIndices();
         Bundle bundle = new Bundle();
@@ -83,7 +83,7 @@ public class FragmentImageIndices extends BaseFragment implements Injectable, Im
     public void onResume() {
         super.onResume();
         Preconditions.checkNotNull(this.getArguments().getString(Constants.IMAGETYPE));
-        Common.ImageType imageType = Common.ImageType.valueOf(this.getArguments().getString(Constants.IMAGETYPE));
+        ImageType imageType = ImageType.valueOf(this.getArguments().getString(Constants.IMAGETYPE));
         viewModel.refresh(ImageRequest.builder().setImageType(imageType).setPage(0).setPageSize(20).setRefresh(true).build());
     }
 

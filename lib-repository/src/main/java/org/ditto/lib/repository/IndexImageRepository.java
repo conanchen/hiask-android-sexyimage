@@ -14,8 +14,12 @@ import org.ditto.lib.dbroom.index.IndexImage;
 import org.ditto.lib.repository.model.ImageRequest;
 import org.ditto.lib.repository.model.LiveDataAndStatus;
 import org.ditto.lib.repository.model.Status;
-import org.ditto.sexyimage.grpc.Common;
-import org.ditto.sexyimage.grpc.Imageman;
+import org.ditto.sexyimage.common.grpc.ImageResponse;
+import org.ditto.sexyimage.common.grpc.ImageType;
+import org.ditto.sexyimage.common.grpc.StatusResponse;
+import org.ditto.sexyimage.manage.grpc.DeleteRequest;
+import org.ditto.sexyimage.manage.grpc.ListRequest;
+import org.ditto.sexyimage.manage.grpc.UpsertRequest;
 
 import java.util.Random;
 
@@ -54,7 +58,7 @@ public class IndexImageRepository {
                     Status status = Status.builder().setCode(Status.Code.START).setRefresh(true).build();
                     postValue(status);
                     Log.i(TAG, String.format("restart  postValue(status) status = [%s]", gson.toJson(status)));
-                    Imageman.ListRequest listRequest = Imageman.ListRequest.newBuilder()
+                    ListRequest listRequest = ListRequest.newBuilder()
                             .setType(imageRequest.imageType).setLastUpdated(imageRequest.lastUpdated).build();
 
                     apigrpcFascade.getImageManService().listImages(listRequest,
@@ -66,7 +70,7 @@ public class IndexImageRepository {
                                 }
 
                                 @Override
-                                public void onImageReceived(Common.ImageResponse response) {
+                                public void onImageReceived(ImageResponse response) {
                                     postValue(Status.builder().setCode(Status.Code.LOADING).setRefresh(true).build());
 
                                     Log.i(TAG, String.format("onImageReceived save to database, image.url=%s\n image=[%s]", response.getUrl(), gson.toJson(response)));
@@ -82,13 +86,13 @@ public class IndexImageRepository {
                                 }
 
                                 @Override
-                                public void onImageDeleted(Common.StatusResponse value) {
+                                public void onImageDeleted(StatusResponse value) {
                                     postValue(Status.builder().setCode(Status.Code.LOADING).setRefresh(true).build());
                                 }
 
 
                                 @Override
-                                public void onImageUpserted(Common.StatusResponse statusResponse) {
+                                public void onImageUpserted(StatusResponse statusResponse) {
                                     postValue(Status.builder().setCode(Status.Code.LOADING).setRefresh(true).build());
                                 }
 
@@ -133,7 +137,7 @@ public class IndexImageRepository {
         return new LiveDataAndStatus<>(liveData, liveStatus);
     }
 
-    public IndexImage findMaxLastUpdated(Common.ImageType imageType) {
+    public IndexImage findMaxLastUpdated(ImageType imageType) {
         return  roomFascade.daoIndexImage.findLatestIndexImage(imageType.name());
     }
 
@@ -148,7 +152,7 @@ public class IndexImageRepository {
             @Override
             protected void onActive() {
                 Log.i(TAG, String.format("delete %s", url));
-                apigrpcFascade.getImageManService().delete(Imageman.DeleteRequest.newBuilder().setUrl(url).build(),
+                apigrpcFascade.getImageManService().delete(DeleteRequest.newBuilder().setUrl(url).build(),
                         new ImageManService.ImageManCallback() {
                             @Override
                             public void onApiReady() {
@@ -156,19 +160,19 @@ public class IndexImageRepository {
                             }
 
                             @Override
-                            public void onImageReceived(Common.ImageResponse image) {
+                            public void onImageReceived(ImageResponse image) {
                                 postValue(Status.builder().setCode(Status.Code.LOADING).build());
 
                             }
 
                             @Override
-                            public void onImageUpserted(Common.StatusResponse statusResponse) {
+                            public void onImageUpserted(StatusResponse statusResponse) {
                                 postValue(Status.builder().setCode(Status.Code.LOADING).build());
 
                             }
 
                             @Override
-                            public void onImageDeleted(Common.StatusResponse statusResponse) {
+                            public void onImageDeleted(StatusResponse statusResponse) {
                                 roomFascade.daoIndexImage.findFlowable(url)
                                         .subscribeOn(Schedulers.io())
                                         .observeOn(Schedulers.io())
@@ -177,7 +181,7 @@ public class IndexImageRepository {
                                             roomFascade.daoIndexImage.delete(indexImage);
                                         })
                                 ;
-                                Log.i(TAG, String.format("onImageDeleted(Common.StatusResponse=[%s]", gson.toJson(statusResponse)));
+                                Log.i(TAG, String.format("onImageDeleted(StatusResponse=[%s]", gson.toJson(statusResponse)));
                                 postValue(Status.builder().setCode(Status.Code.LOADING).setMessage(gson.toJson(statusResponse)).build());
                             }
 
@@ -201,12 +205,12 @@ public class IndexImageRepository {
         return new LiveData<Status>() {
             @Override
             protected void onActive() {
-                Imageman.UpsertRequest upsertRequest = Imageman.UpsertRequest
+                UpsertRequest upsertRequest = UpsertRequest
                         .newBuilder()
                         .setUrl(indexImage.url)
                         .setInfoUrl(Strings.isNullOrEmpty(indexImage.infoUrl) ? "" : indexImage.infoUrl)
                         .setTitle(Strings.isNullOrEmpty(indexImage.title) ? "" : indexImage.title)
-                        .setType(Strings.isNullOrEmpty(indexImage.type) ? Common.ImageType.SECRET : Common.ImageType.valueOf(indexImage.type))
+                        .setType(Strings.isNullOrEmpty(indexImage.type) ? ImageType.SECRET : ImageType.valueOf(indexImage.type))
                         .setActive(indexImage.active)
                         .setToprank(indexImage.toprank)
                         .build();
@@ -220,18 +224,18 @@ public class IndexImageRepository {
                             }
 
                             @Override
-                            public void onImageReceived(Common.ImageResponse image) {
+                            public void onImageReceived(ImageResponse image) {
                                 postValue(Status.builder().setCode(Status.Code.LOADING).build());
                             }
 
                             @Override
-                            public void onImageDeleted(Common.StatusResponse value) {
+                            public void onImageDeleted(StatusResponse value) {
                                 postValue(Status.builder().setCode(Status.Code.LOADING).build());
                             }
 
                             @Override
-                            public void onImageUpserted(Common.StatusResponse statusResponse) {
-                                Log.i(TAG, String.format("onImageUpserted(Common.StatusResponse=[%s]", gson.toJson(statusResponse)));
+                            public void onImageUpserted(StatusResponse statusResponse) {
+                                Log.i(TAG, String.format("onImageUpserted(StatusResponse=[%s]", gson.toJson(statusResponse)));
                                 postValue(Status.builder().setCode(Status.Code.END_SUCCESS).setMessage(gson.toJson(statusResponse)).build());
                             }
 
@@ -265,7 +269,7 @@ public class IndexImageRepository {
                         roomFascade.daoIndexImage.saveAll(
                                 IndexImage.builder()
                                         .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
-                                        .setType(Common.ImageType.NORMAL.name())
+                                        .setType(ImageType.NORMAL.name())
                                         .setTitle(i + " NORMAL 标题title消灭一切害人虫昵称")
                                         .setDesc(i + " 详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
                                         .setLastUpdated(now + i)
@@ -273,7 +277,7 @@ public class IndexImageRepository {
                                         .build(),
                                 IndexImage.builder()
                                         .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
-                                        .setType(Common.ImageType.POSTER.name())
+                                        .setType(ImageType.POSTER.name())
                                         .setTitle(i + " POSTER 标题title消灭一切害人虫昵称")
                                         .setDesc(i + " 详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
                                         .setLastUpdated(now + i)
@@ -281,7 +285,7 @@ public class IndexImageRepository {
                                         .build(),
                                 IndexImage.builder()
                                         .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
-                                        .setType(Common.ImageType.SEXY.name())
+                                        .setType(ImageType.SEXY.name())
                                         .setTitle(i + " SEXY 标题title消灭一切害人虫昵称")
                                         .setDesc(i + " 详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
                                         .setLastUpdated(now + i)
@@ -289,7 +293,7 @@ public class IndexImageRepository {
                                         .build(),
                                 IndexImage.builder()
                                         .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
-                                        .setType(Common.ImageType.PORN.name())
+                                        .setType(ImageType.PORN.name())
                                         .setTitle(i + " PORN 标题title消灭一切害人虫昵称")
                                         .setDesc(i + " 详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
                                         .setLastUpdated(now + i)
@@ -297,7 +301,7 @@ public class IndexImageRepository {
                                         .build(),
                                 IndexImage.builder()
                                         .setUrl("https://imgcache.cjmx.com/star/201512/20151201213056390.jpg?" + i++)
-                                        .setType(Common.ImageType.SECRET.name())
+                                        .setType(ImageType.SECRET.name())
                                         .setTitle(i + " SECRET 标题title消灭一切害人虫昵称")
                                         .setDesc(i + " 详细detail深入理解ConstraintLayout之使用姿势约束是一种规则,用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系用来表示视图之间的相对关系约束是一种规则,用来表示视图之间的相对关系")
                                         .setLastUpdated(now + i)

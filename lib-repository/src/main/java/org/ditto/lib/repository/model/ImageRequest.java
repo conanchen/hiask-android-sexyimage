@@ -1,9 +1,10 @@
 package org.ditto.lib.repository.model;
 
-import org.ditto.sexyimage.grpc.Common;
+
+import org.ditto.sexyimage.common.grpc.ImageType;
 
 public class ImageRequest {
-    public Common.ImageType imageType;
+    public ImageType imageType;
     public long lastUpdated;
     public int page;
     public int pageSize;
@@ -14,7 +15,7 @@ public class ImageRequest {
     }
 
 
-    public ImageRequest(Common.ImageType imageType, long lastUpdated, int page, int pageSize, boolean refresh, boolean loadMore) {
+    public ImageRequest(ImageType imageType, long lastUpdated, int page, int pageSize, boolean refresh, boolean loadMore) {
         this.imageType = imageType;
         this.lastUpdated = lastUpdated;
         this.page = page;
@@ -28,7 +29,7 @@ public class ImageRequest {
     }
 
     public static final class Builder {
-        private Common.ImageType imageType;
+        private ImageType imageType;
         private long lastUpdated;
         private int page;
         private int pageSize;
@@ -61,7 +62,7 @@ public class ImageRequest {
             return new ImageRequest(imageType, lastUpdated,page, pageSize, refresh, loadMore);
         }
 
-        public Builder setImageType(Common.ImageType imageType) {
+        public Builder setImageType(ImageType imageType) {
             this.imageType = imageType;
             return this;
         }

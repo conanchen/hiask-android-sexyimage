@@ -30,7 +30,7 @@ import org.ditto.feature.image.R;
 import org.ditto.feature.image.R2;
 import org.ditto.feature.image.di.ImageViewModelFactory;
 import org.ditto.lib.Constants;
-import org.ditto.sexyimage.grpc.Common;
+import org.ditto.sexyimage.common.grpc.ImageType;
 
 import javax.inject.Inject;
 
@@ -222,7 +222,7 @@ public class UpsertActivity extends BaseActivity {
         }
 
         @Override
-        public void onTypeChanged(Common.ImageType type) {
+        public void onTypeChanged(ImageType type) {
             mViewModel.setNewType(type);
         }
 

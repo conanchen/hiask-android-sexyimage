@@ -25,7 +25,7 @@ import org.ditto.feature.base.FragmentsPagerAdapter;
 import org.ditto.feature.image.index.FragmentImageIndices;
 import org.ditto.feature.visitor.FragmentVisitorIndices;
 import org.ditto.lib.Constants;
-import org.ditto.sexyimage.grpc.Common;
+import org.ditto.sexyimage.common.grpc.ImageType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -115,17 +115,17 @@ public class MainActivity extends BaseFragmentActivity {
         int fmIdx=0;
         Map<Integer,Fragment> fmList = new HashMap<>();
         mBottombarTab0Fragment0 = fmList.size();
-        fmList.put(fmIdx++, FragmentImageIndices.create("Normal", Common.ImageType.NORMAL));
+        fmList.put(fmIdx++, FragmentImageIndices.create("Normal", ImageType.NORMAL));
         mBottombarTab1Fragment0 = fmList.size();
-        fmList.put(fmIdx++, FragmentImageIndices.create("Poster",Common.ImageType.POSTER));
+        fmList.put(fmIdx++, FragmentImageIndices.create("Poster",ImageType.POSTER));
 
         mBottombarTab2Fragment0 = fmList.size();
         fmList.put(fmIdx++,  FragmentVisitorIndices.create("Visitor"));
         mBottombarTab3Fragment0 = fmList.size();
-        fmList.put(fmIdx++, FragmentImageIndices.create("Sexy",Common.ImageType.SEXY));
+        fmList.put(fmIdx++, FragmentImageIndices.create("Sexy",ImageType.SEXY));
         mBottombarTab4Fragment0 = fmList.size();
-        fmList.put(fmIdx++, FragmentImageIndices.create("Porn",Common.ImageType.PORN));
-        fmList.put(fmIdx++, FragmentImageIndices.create("Secret",Common.ImageType.SECRET));
+        fmList.put(fmIdx++, FragmentImageIndices.create("Porn",ImageType.PORN));
+        fmList.put(fmIdx++, FragmentImageIndices.create("Secret",ImageType.SECRET));
 
         FragmentsPagerAdapter fmAapter = new FragmentsPagerAdapter(this.getSupportFragmentManager(), fmList);
         viewPager.setAdapter(fmAapter);
@@ -210,22 +210,22 @@ public class MainActivity extends BaseFragmentActivity {
             switch (tabId){
                 case R.id.navigation_tab0:
                     ARouter.getInstance().build("/feature_image/UpsertActivity")
-                            .withString(Constants.IMAGETYPE, Common.ImageType.NORMAL.name())
+                            .withString(Constants.IMAGETYPE, ImageType.NORMAL.name())
                             .navigation();
                     break;
                 case R.id.navigation_tab1:
                     ARouter.getInstance().build("/feature_image/UpsertActivity")
-                            .withString(Constants.IMAGETYPE, Common.ImageType.POSTER.name())
+                            .withString(Constants.IMAGETYPE, ImageType.POSTER.name())
                             .navigation();
                     break;
                 case R.id.navigation_tab3:
                     ARouter.getInstance().build("/feature_image/UpsertActivity")
-                            .withString(Constants.IMAGETYPE, Common.ImageType.SEXY.name())
+                            .withString(Constants.IMAGETYPE, ImageType.SEXY.name())
                             .navigation();
                     break;
                 case R.id.navigation_tab4:
                     ARouter.getInstance().build("/feature_image/UpsertActivity")
-                            .withString(Constants.IMAGETYPE, Common.ImageType.PORN.name())
+                            .withString(Constants.IMAGETYPE, ImageType.PORN.name())
                             .navigation();
                     break;
             }

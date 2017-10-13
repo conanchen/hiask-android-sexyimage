@@ -11,7 +11,7 @@ import org.ditto.feature.image.profile.epoxymodels.ImageTitleEditModel_;
 import org.ditto.feature.image.profile.epoxymodels.ImageTypeEditModel_;
 import org.ditto.feature.image.profile.epoxymodels.ImageUrlEditModel_;
 import org.ditto.lib.dbroom.index.IndexImage;
-import org.ditto.sexyimage.grpc.Common;
+import org.ditto.sexyimage.common.grpc.ImageType;
 
 public class ImageProfileEditController extends Typed2EpoxyController<IndexImage, Boolean> {
     public interface AdapterCallbacks {
@@ -21,7 +21,7 @@ public class ImageProfileEditController extends Typed2EpoxyController<IndexImage
 
         void onTitleChanged(String title);
 
-        void onTypeChanged(Common.ImageType type);
+        void onTypeChanged(ImageType type);
 
         void onInfoUrlChanged(String url);
 

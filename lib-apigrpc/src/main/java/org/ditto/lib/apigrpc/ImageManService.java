@@ -5,9 +5,13 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
-import org.ditto.sexyimage.grpc.Common;
-import org.ditto.sexyimage.grpc.ImageManGrpc;
-import org.ditto.sexyimage.grpc.Imageman;
+import org.ditto.sexyimage.common.grpc.ImageResponse;
+import org.ditto.sexyimage.common.grpc.ImageType;
+import org.ditto.sexyimage.common.grpc.StatusResponse;
+import org.ditto.sexyimage.manage.grpc.DeleteRequest;
+import org.ditto.sexyimage.manage.grpc.ImageManGrpc;
+import org.ditto.sexyimage.manage.grpc.ListRequest;
+import org.ditto.sexyimage.manage.grpc.UpsertRequest;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,11 +39,11 @@ public class ImageManService {
     private final static String TAG = ImageManService.class.getSimpleName();
 
     public interface ImageManCallback {
-        void onImageReceived(Common.ImageResponse image);
+        void onImageReceived(ImageResponse image);
 
-        void onImageUpserted(Common.StatusResponse statusResponse);
+        void onImageUpserted(StatusResponse statusResponse);
 
-        void onImageDeleted(Common.StatusResponse statusResponse);
+        void onImageDeleted(StatusResponse statusResponse);
 
         void onApiError();
 
@@ -71,9 +75,9 @@ public class ImageManService {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    ClientCallStreamObserver<Imageman.ListRequest> listRequestStream;
+    ClientCallStreamObserver<ListRequest> listRequestStream;
 
-    public void listImages(Imageman.ListRequest listRequest, ImageManCallback callback) {
+    public void listImages(ListRequest listRequest, ImageManCallback callback) {
         callback.onApiReady();
         healthStub.check(healthCheckRequest,
                 new StreamObserver<HealthCheckResponse>() {
@@ -102,16 +106,16 @@ public class ImageManService {
 
     }
 
-    public void delete(Imageman.DeleteRequest deleteRequest, ImageManCallback callback) {
+    public void delete(DeleteRequest deleteRequest, ImageManCallback callback) {
         Log.i(TAG, String.format("before healthcheck deleteRequest=[%s]", gson.toJson(deleteRequest)));
         healthStub.check(healthCheckRequest,
                 new StreamObserver<HealthCheckResponse>() {
                     @Override
                     public void onNext(HealthCheckResponse value) {
                         if (value.getStatus() == HealthCheckResponse.ServingStatus.SERVING) {
-                            imageManStub.withWaitForReady().delete(deleteRequest, new StreamObserver<Common.StatusResponse>() {
+                            imageManStub.withWaitForReady().delete(deleteRequest, new StreamObserver<StatusResponse>() {
                                 @Override
-                                public void onNext(Common.StatusResponse response) {
+                                public void onNext(StatusResponse response) {
                                     Log.i(TAG, String.format("delete callback StatusResponse=[%s]", gson.toJson(response)));
                                     callback.onImageDeleted(response);
                                 }
@@ -143,15 +147,15 @@ public class ImageManService {
 
     }
 
-    public void upsert(Imageman.UpsertRequest upsertRequest, ImageManCallback callback) {
+    public void upsert(UpsertRequest upsertRequest, ImageManCallback callback) {
         healthStub.check(healthCheckRequest,
                 new StreamObserver<HealthCheckResponse>() {
                     @Override
                     public void onNext(HealthCheckResponse value) {
                         if (value.getStatus() == HealthCheckResponse.ServingStatus.SERVING) {
-                            imageManStub.withWaitForReady().upsert(upsertRequest, new StreamObserver<Common.StatusResponse>() {
+                            imageManStub.withWaitForReady().upsert(upsertRequest, new StreamObserver<StatusResponse>() {
                                 @Override
-                                public void onNext(Common.StatusResponse value) {
+                                public void onNext(StatusResponse value) {
                                     callback.onImageUpserted(value);
                                 }
 
@@ -185,7 +189,7 @@ public class ImageManService {
 
 
     private class ListImagesStreamObserver implements ClientResponseObserver<
-            Imageman.ListRequest, Common.ImageResponse> {
+            ListRequest, ImageResponse> {
 
 
         ImageManCallback imageManCallback;
@@ -205,7 +209,7 @@ public class ImageManService {
         }
 
         @Override
-        public void onNext(Common.ImageResponse response) {
+        public void onNext(ImageResponse response) {
             imageManCallback.onImageReceived(response);
             listRequestStream.request(1);
             logger.info(String.format("%s image=[%s]", "onNext listRequestStream.request(1)", gson.toJson(response)));
@@ -227,13 +231,13 @@ public class ImageManService {
     }
 
 
-    public static Set<Common.ImageType> getImageTypes(boolean normal, boolean poster, boolean sexy, boolean porn) {
-        return new HashSet<Common.ImageType>() {
+    public static Set<ImageType> getImageTypes(boolean normal, boolean poster, boolean sexy, boolean porn) {
+        return new HashSet<ImageType>() {
             {
-                if (normal) add(Common.ImageType.NORMAL);
-                if (poster) add(Common.ImageType.POSTER);
-                if (sexy) add(Common.ImageType.SEXY);
-                if (porn) add(Common.ImageType.PORN);
+                if (normal) add(ImageType.NORMAL);
+                if (poster) add(ImageType.POSTER);
+                if (sexy) add(ImageType.SEXY);
+                if (porn) add(ImageType.PORN);
             }
         };
     }
