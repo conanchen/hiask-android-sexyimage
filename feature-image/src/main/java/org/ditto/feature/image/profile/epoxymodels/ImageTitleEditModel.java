@@ -1,6 +1,8 @@
 package org.ditto.feature.image.profile.epoxymodels;
 
 import android.support.v7.widget.AppCompatEditText;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 
 import com.airbnb.epoxy.EpoxyAttribute;
@@ -35,10 +37,20 @@ public abstract class ImageTitleEditModel extends EpoxyModelWithHolder<ImageTitl
     public void bind(Holder holder) {
 
         holder.textViewTitle.setText(title);
-        holder.textViewTitle.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        holder.textViewTitle.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onFocusChange(View view, boolean b) {
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 callbacks.onTitleChanged(holder.textViewTitle.getText().toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
             }
         });
     }

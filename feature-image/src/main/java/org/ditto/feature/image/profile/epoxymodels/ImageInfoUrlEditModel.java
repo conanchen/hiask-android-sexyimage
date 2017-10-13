@@ -1,5 +1,7 @@
 package org.ditto.feature.image.profile.epoxymodels;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 
@@ -33,10 +35,23 @@ public abstract class ImageInfoUrlEditModel extends EpoxyModelWithHolder<ImageIn
     @Override
     public void bind(Holder holder) {
         holder.textViewInfoUrl.setText(url);
-        holder.textViewInfoUrl.setOnFocusChangeListener((View view, boolean b) -> {
-                    callbacks.onInfoUrlChanged(holder.textViewInfoUrl.getText().toString());
-                }
-        );
+        holder.textViewInfoUrl.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                callbacks.onInfoUrlChanged(holder.textViewInfoUrl.getText().toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
     }
 
 
